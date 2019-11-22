@@ -2,7 +2,7 @@
 
 ## How to run
 1. Install `pytest` and `pytest-mocker`.
-2. Run in the tests directory with `pytest [test file]` or `pytest .` to run all test files in the directory.
+2. Run in the tests directory with `pytest [test file]`.
 
 
 ## BaseDataQualityOperator
