@@ -6,9 +6,6 @@ from airflow.hooks.hive_hooks import HiveServer2Hook
 
 class BaseDataQualityOperator(BaseOperator):
 
-    template_fields = ('sql',)
-    template_ext = ('.sql',)
-
     @apply_defaults
     def __init__(self,
                  sql=None,
@@ -27,18 +24,21 @@ class BaseDataQualityOperator(BaseOperator):
         self.push_conn_type = push_conn_type
         self.sql = sql
         self.check_description = check_description
+    
+    @staticmethod
+    def _get_hook(conn_type, conn_id):
+        if conn_type == 'postgres':
+            return PostgresHook(postgres_conn_id=conn_id)
+        elif conn_type == 'mysql':
+            return MySqlHook(mysql_conn_id=conn_id)
+        elif conn_type == 'hive':
+            return HiveServer2Hook(hiveserver2_conn_id=conn_id)
+        else:
+            raise ValueError(f"""Connection type of {conn_type} not currently supported""")
 
     @staticmethod
     def get_result(conn_type, conn_id, sql):
-        if conn_type == 'postgres':
-            hook = PostgresHook(postgres_conn_id=conn_id)
-        elif conn_type == 'mysql':
-            hook = MySqlHook(mysql_conn_id=conn_id)
-        elif conn_type == 'hive':
-            hook = HiveServer2Hook(hiveserver2_conn_id=conn_id)
-        else:
-            raise ValueError(f"""Connection type of {conn_type} not currently supported""")
-        result = hook.get_records(sql)
+        result = BaseDataQualityOperator._get_hook(conn_type, conn_id).get_records(sql)
         if len(result) != 1:
             raise ValueError("Result from sql query does not contain exactly 1 entry")
         if len(result[0]) != 1:
