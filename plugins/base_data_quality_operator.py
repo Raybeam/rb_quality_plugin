@@ -4,13 +4,15 @@ from airflow.hooks.postgres_hook import PostgresHook
 from airflow.hooks.mysql_hook import MySqlHook
 from airflow.hooks.hive_hooks import HiveServer2Hook
 
+import logging
+
 class BaseDataQualityOperator(BaseOperator):
 
     @apply_defaults
     def __init__(self,
-                 sql=None,
-                 conn_id=None,
-                 conn_type=None,
+                 sql,
+                 conn_id,
+                 conn_type,
                  push_conn_type=None,
                  push_conn_id=None,
                  check_description=None,
@@ -41,10 +43,12 @@ class BaseDataQualityOperator(BaseOperator):
         hook = BaseDataQualityOperator._get_hook(conn_type, conn_id)
         result = hook.get_records(sql)
         if len(result) > 1:
+            logging.info("Result: " + str(result) + " contains more than 1 entry")
             raise ValueError("Result from sql query contains more than 1 entry")
         if len(result) < 1:
             raise ValueError("No result returned from sql query")
         if len(result[0]) != 1:
+            logging.info("Result: " + str(result) + " does not contain exactly 1 column")
             raise ValueError("Result from sql query does not contain exactly 1 column")
         return result[0][0]
 
