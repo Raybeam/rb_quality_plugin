@@ -29,7 +29,8 @@ def test_get_result_not_one_result(mocker):
             conn_id='test_id',
             sql='SELECT COUNT(1) FROM test;'
         )
-    
+
+def test_get_result_no_result(mocker):
     mocker.patch.object(
         HiveServer2Hook,
         'get_records',

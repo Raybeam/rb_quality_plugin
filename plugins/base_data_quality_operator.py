@@ -38,11 +38,13 @@ class BaseDataQualityOperator(BaseOperator):
 
     @staticmethod
     def get_result(conn_type, conn_id, sql):
-        result = BaseDataQualityOperator._get_hook(conn_type, conn_id).get_records(sql)
-        if len(result) != 1:
-            raise ValueError("Result from sql query does not contain exactly 1 entry")
+        hook = BaseDataQualityOperator._get_hook(conn_type, conn_id)
+        result = hook.get_records(sql)
+        if len(result) > 1:
+            raise ValueError("Result from sql query contains more than 1 entry")
+        if len(result) < 1:
+            raise ValueError("No result returned from sql query")
         if len(result[0]) != 1:
-            print(result[0])
             raise ValueError("Result from sql query does not contain exactly 1 column")
         return result[0][0]
 
