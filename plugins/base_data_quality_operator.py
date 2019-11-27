@@ -45,8 +45,7 @@ class BaseDataQualityOperator(BaseOperator):
         self.sql = sql
         self.check_description = check_description
 
-    @staticmethod
-    def _get_hook(conn_type, conn_id):
+    def _get_hook(self, conn_type, conn_id):
         if conn_type == "postgres":
             return PostgresHook(postgres_conn_id=conn_id)
         if conn_type == "mysql":
@@ -56,9 +55,8 @@ class BaseDataQualityOperator(BaseOperator):
 
         raise ValueError(f"""Connection type of {conn_type} not currently supported""")
 
-    @staticmethod
-    def get_result(conn_type, conn_id, sql):
-        hook = BaseDataQualityOperator._get_hook(conn_type, conn_id)
+    def get_result(self, conn_type, conn_id, sql):
+        hook = self._get_hook(conn_type, conn_id)
         result = hook.get_records(sql)
         if len(result) > 1:
             logging.info("Result: %s contains more than 1 entry", str(result))
