@@ -11,13 +11,26 @@ class BaseDataQualityOperator(BaseOperator):
     Base operator that executes a data quality sql statement,
     and optionally pushes results and metadata to an external
     database for storage.
+    
+    :param sql: sql code to be executed
+    :type sql: str
+    :param conn_type: database type
+    :type conn_type: str
+    :param conn_id: connection id of database
+    :type conn_type: str
+    :param push_conn_type: (optional) external database type
+    :type push_conn_type: str
+    :param push_conn_id: (optional) connection id of external database
+    :type push_conn_type: str
+    :param check_description: (optional) description of data quality sql statement
+    :type check_description: str
     """
 
     @apply_defaults
     def __init__(self,
                  sql,
-                 conn_id,
                  conn_type,
+                 conn_id,
                  push_conn_type=None,
                  push_conn_id=None,
                  check_description=None,
