@@ -11,7 +11,7 @@ class BaseDataQualityOperator(BaseOperator):
     Base operator that executes a data quality sql statement,
     and optionally pushes results and metadata to an external
     database for storage.
-    
+
     :param sql: sql code to be executed
     :type sql: str
     :param conn_type: database type
@@ -45,6 +45,17 @@ class BaseDataQualityOperator(BaseOperator):
         self.sql = sql
         self.check_description = check_description
 
+    @property
+    def conn_type(self):
+        return self._conn_type
+    
+    @conn_type.setter
+    def conn_type(self, conn):
+        conn_types = {'postgres', 'mysql', 'hive'}
+        if conn not in conn_types:
+            raise ValueError(f"""Connection type of "{conn}" not currently supported""")
+        self._conn_type = conn
+
     def _get_hook(self, conn_type, conn_id):
         if conn_type == "postgres":
             return PostgresHook(postgres_conn_id=conn_id)
@@ -53,7 +64,7 @@ class BaseDataQualityOperator(BaseOperator):
         if conn_type == "hive":
             return HiveServer2Hook(hiveserver2_conn_id=conn_id)
 
-        raise ValueError(f"""Connection type of {conn_type} not currently supported""")
+        raise ValueError(f"""Connection type of "{conn_type}" not currently supported""")
 
     def get_result(self, conn_type, conn_id, sql):
         hook = self._get_hook(conn_type, conn_id)

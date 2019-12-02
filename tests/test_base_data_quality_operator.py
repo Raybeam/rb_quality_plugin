@@ -100,16 +100,10 @@ def test_get_result_multiple_results(mocker):
         )
 
 def test_get_result_invalid_connection():
-    task = BaseDataQualityOperator(
-        task_id="one_result_task",
-        conn_type='invalid_type',
-        conn_id='test_id',
-        sql='SELECT COUNT(1) FROM test;'
-    )
-
     with pytest.raises(ValueError):
-        task.get_result(
-            conn_type=task.conn_type,
-            conn_id=task.conn_id,
-            sql=task.sql
+        BaseDataQualityOperator(
+            task_id="one_result_task",
+            conn_type='invalid_type',
+            conn_id='test_id',
+            sql='SELECT COUNT(1) FROM test;'
         )
