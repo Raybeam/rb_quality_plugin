@@ -4,16 +4,6 @@ from datetime import datetime
 from plugins.base_data_quality_operator import BaseDataQualityOperator, \
     PostgresHook, MySqlHook, HiveServer2Hook
 
-default_args = {
-    "owner" : "airflow",
-    "start_date" : datetime(2019,11,15),
-}
-
-test_dag = DAG(
-    dag_id='test_id',
-    default_args=default_args,
-)
-
 def test_get_result_one_result(mocker):
     mocker.patch.object(
         PostgresHook,

@@ -8,7 +8,7 @@ from airflow.hooks.hive_hooks import HiveServer2Hook
 
 class BaseDataQualityOperator(BaseOperator):
     """
-    Base operator that executes a data quality sql statement,
+    BaseDataQualityOperator executes a data quality sql statement,
     and optionally pushes results and metadata to an external
     database for storage.
 
@@ -63,8 +63,6 @@ class BaseDataQualityOperator(BaseOperator):
             return MySqlHook(mysql_conn_id=conn_id)
         if conn_type == "hive":
             return HiveServer2Hook(hiveserver2_conn_id=conn_id)
-
-        raise ValueError(f"""Connection type of "{conn_type}" not currently supported""")
 
     def get_result(self, conn_type, conn_id, sql):
         hook = self._get_hook(conn_type, conn_id)
