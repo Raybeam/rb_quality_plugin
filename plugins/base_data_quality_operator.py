@@ -17,11 +17,11 @@ class BaseDataQualityOperator(BaseOperator):
     :param conn_type: database type
     :type conn_type: str
     :param conn_id: connection id of database
-    :type conn_type: str
+    :type conn_id: str
     :param push_conn_type: (optional) external database type
     :type push_conn_type: str
     :param push_conn_id: (optional) connection id of external database
-    :type push_conn_type: str
+    :type push_conn_id: str
     :param check_description: (optional) description of data quality sql statement
     :type check_description: str
     """
