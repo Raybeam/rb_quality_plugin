@@ -1,8 +1,11 @@
 import pytest
-from airflow import DAG
-from datetime import datetime
-from plugins.base_data_quality_operator import BaseDataQualityOperator, \
-    PostgresHook, MySqlHook, HiveServer2Hook
+
+from airflow.hooks.postgres_hook import PostgresHook
+from airflow.hooks.mysql_hook import MySqlHook
+from airflow.hooks.hive_hooks import HiveServer2Hook
+
+from plugins.base_data_quality_operator import BaseDataQualityOperator
+
 
 def test_get_result_one_result(mocker):
     mocker.patch.object(
