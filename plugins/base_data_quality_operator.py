@@ -48,7 +48,7 @@ class BaseDataQualityOperator(BaseOperator):
     @property
     def conn_type(self):
         return self._conn_type
-    
+
     @conn_type.setter
     def conn_type(self, conn):
         conn_types = {'postgres', 'mysql', 'hive'}
