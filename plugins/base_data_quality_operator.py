@@ -46,7 +46,7 @@ class BaseDataQualityOperator(BaseOperator):
         self.check_description = check_description
 
     def execute(self, context):
-        info_dict = { 'result': self.get_result(self.conn_type, self.conn_id, self.sql),
+        info_dict = { 'result': self.get_result(),
                       'description': self.check_description,
                       'task_id': self.task_id,
                       'execution_date': context['execution_date']
@@ -73,9 +73,9 @@ class BaseDataQualityOperator(BaseOperator):
         if conn_type == "hive":
             return HiveServer2Hook(hiveserver2_conn_id=conn_id)
 
-    def get_result(self, conn_type, conn_id, sql):
-        hook = self._get_hook(conn_type, conn_id)
-        result = hook.get_records(sql)
+    def get_result(self):
+        hook = self._get_hook(self.conn_type, self.conn_id)
+        result = hook.get_records(self.sql)
         if len(result) > 1:
             logging.info("Result: %s contains more than 1 entry", str(result))
             raise ValueError("Result from sql query contains more than 1 entry")
