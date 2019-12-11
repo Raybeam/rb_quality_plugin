@@ -1,5 +1,6 @@
 import datetime
 from unittest.mock import Mock
+from unittest.mock import patch
 import pendulum
 import pytest
 
@@ -137,8 +138,9 @@ def test_dq_check_operator(test_dag):
         dag=test_dag,
     )
     task.get_result = Mock(return_value=3)
-    task.push = Mock(return_value=3)
-    task_instance = TaskInstance(task=task, execution_date=expected_exec_date)
-    result = task.execute(task_instance.get_template_context())
+    with patch.object(task, 'push') as mock:
+        task_instance = TaskInstance(task=task, execution_date=expected_exec_date)
+        result = task.execute(task_instance.get_template_context())
 
     assert result == expected
+    assert mock.called
