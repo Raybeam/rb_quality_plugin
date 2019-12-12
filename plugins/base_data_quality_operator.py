@@ -46,7 +46,7 @@ class BaseDataQualityOperator(BaseOperator):
         self.check_description = check_description
 
     def execute(self, context):
-        info_dict = { 'result': self.get_result(),
+        info_dict = { 'result': self.get_result(self.conn_type, self.conn_id, self.sql),
                       'description': self.check_description,
                       'task_id': self.task_id,
                       'execution_date': context['execution_date']
