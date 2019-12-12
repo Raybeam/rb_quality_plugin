@@ -1,6 +1,7 @@
 from pathlib import Path
 from datetime import datetime
 from unittest.mock import Mock
+import pytest
 import psycopg2
 import testing.postgresql
 
@@ -66,6 +67,15 @@ def make_threshold_check_task(sql, min_thresh, max_thresh, eval_thresh):
         )
     task.push = Mock(return_value=None)
     return task
+
+def test_invalid_sql_statement():
+    eval_threshold = True
+    min_threshold = 'SELECT COUNT(1) FROM test;'
+    max_threshold = 'DROP test CASCADE;'
+    sql = 'SELECT AVG(cost) FROM price'
+
+    with pytest.raises(Exception):
+        make_threshold_check_task(sql, min_threshold, max_threshold, eval_threshold)
 
 def test_inside_threshold_values(mocker):
     eval_threshold = False
