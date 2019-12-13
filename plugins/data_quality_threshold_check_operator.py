@@ -57,3 +57,20 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
                 if kw in sql.upper():
                     raise Exception(f"""Cannot use keyword {kw} in a sql query""")
         self._max_threshold = sql
+    
+    def execute(self, context):
+        info_dict = super().execute(context=context)
+        result = info_dict['result']
+
+        if self.eval_threshold:
+            upper_threshold = self.get_result(self.threshold_conn_type, self.threshold_conn_id, self.max_threshold)
+            lower_threshold = self.get_result(self.threshold_conn_type, self.threshold_conn_id, self.min_threshold)
+        else:
+            upper_threshold = self.max_threshold
+            lower_threshold = self.min_threshold
+        if lower_threshold < result < upper_threshold:
+            info_dict['within_threshold'] = True
+        else:
+            info_dict['within_threshold'] = False
+
+        return info_dict
