@@ -3,6 +3,23 @@ from airflow.utils.decorators import apply_defaults
 from plugins.base_data_quality_operator import BaseDataQualityOperator
 
 class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
+    """
+    DataQualityThresholdCheckOperator builds off BaseDataQualityOperator and 
+    executes a data quality check against input threshold values. If thresholds
+    are sql queries to evaluate a value, the operator will evaluate the queries
+    and compare the data quality check result with these threshold values.
+
+    :param min_threshold: lower bound value or threshold sql statement to be executed
+    :type min_threshold: numeric or str
+    :param max_threshold: lower bound value or threshold sql statement to be executed
+    :type max_threshold: numeric or str
+    :param eval_threshold: boolean that flags whether max/min threshold need to be executed
+    :type eval_threshold: bool
+    :param threshold_conn_type: connection type for threshold sql
+    :type threshold_conn_type: str
+    :param threshold_conn_id: connection id for threshold sql
+    :type threshold_conn_id: str
+    """
 
     @apply_defaults
     def __init__(self,
