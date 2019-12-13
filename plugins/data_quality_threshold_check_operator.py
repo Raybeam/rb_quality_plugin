@@ -1,6 +1,6 @@
 from airflow.utils.decorators import apply_defaults
 
-from plugins.base_data_quality_operator import BaseDataQualityOperator
+from base_data_quality_operator import BaseDataQualityOperator
 
 class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
     """
