@@ -6,9 +6,7 @@ import psycopg2
 import testing.postgresql
 
 from airflow.hooks.postgres_hook import PostgresHook
-
-from plugins.data_quality_threshold_check_operator import DataQualityThresholdCheckOperator
-
+from airflow.operators.data_quality_threshold_check_operator import DataQualityThresholdCheckOperator
 
 SQL_PATH = Path(__file__).parents[0] / "configs" / "test_sql_table.sql"
 

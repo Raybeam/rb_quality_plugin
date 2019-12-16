@@ -1,10 +1,11 @@
 from airflow.utils.decorators import apply_defaults
+from airflow.plugins_manager import AirflowPlugin
 
 from base_data_quality_operator import BaseDataQualityOperator
 
 class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
     """
-    DataQualityThresholdCheckOperator builds off BaseDataQualityOperator and 
+    DataQualityThresholdCheckOperator builds off BaseDataQualityOperator and
     executes a data quality check against input threshold values. If thresholds
     are sql queries to evaluate a value, the operator will evaluate the queries
     and compare the data quality check result with these threshold values.
@@ -36,15 +37,15 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
         self.max_threshold = max_threshold
         self.threshold_conn_type = threshold_conn_type
         self.threshold_conn_id = threshold_conn_id
-    
+
     @property
     def threshold_conn_type(self):
         return self._threshold_conn_type
-    
+
     @property
     def min_threshold(self):
         return self._min_threshold
-    
+
     @property
     def max_threshold(self):
         return self._max_threshold
@@ -56,7 +57,7 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
             if conn not in conn_types:
                 raise ValueError(f"""Connection type "{conn}" is not supported""")
         self._threshold_conn_type = conn
-    
+
     @min_threshold.setter
     def min_threshold(self, sql):
         if self.eval_threshold:
@@ -65,7 +66,7 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
                 if kw in sql.upper():
                     raise Exception(f"""Cannot use keyword {kw} in a sql query""")
         self._min_threshold = sql
-    
+
     @max_threshold.setter
     def max_threshold(self, sql):
         if self.eval_threshold:
@@ -74,7 +75,7 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
                 if kw in sql.upper():
                     raise Exception(f"""Cannot use keyword {kw} in a sql query""")
         self._max_threshold = sql
-    
+
     def execute(self, context):
         info_dict = super().execute(context=context)
         result = info_dict['result']
@@ -91,3 +92,8 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
             info_dict['within_threshold'] = False
 
         return info_dict
+
+
+class DataQualityThresholdCheckPlugin(AirflowPlugin):
+    name = 'data_quality_threshold_check_operator'
+    operators = [DataQualityThresholdCheckOperator]
