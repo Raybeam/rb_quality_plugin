@@ -92,7 +92,7 @@ def test_inside_threshold_values(mocker):
         "execution_date": datetime.now(),
     })
 
-    assert len(result) == 5
+    assert len(result) == 7
     assert result["within_threshold"]
 
 
@@ -113,7 +113,7 @@ def test_outside_threshold_values(mocker):
         "execution_date": datetime.now(),
     })
 
-    assert len(result) == 5
+    assert len(result) == 7
     assert not result["within_threshold"]
 
 
@@ -135,7 +135,7 @@ def test_inside_threshold_eval(mocker):
         "execution_date": datetime.now(),
     })
 
-    assert len(result) == 5
+    assert len(result) == 7
     assert result["within_threshold"]
 
 
@@ -157,5 +157,5 @@ def test_outside_threshold_eval(mocker):
         "execution_date": datetime.now(),
     })
 
-    assert len(result) == 5
+    assert len(result) == 7
     assert not result["within_threshold"]

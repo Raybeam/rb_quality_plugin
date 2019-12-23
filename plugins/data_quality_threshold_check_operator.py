@@ -90,7 +90,7 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
             info_dict['within_threshold'] = True
         else:
             info_dict['within_threshold'] = False
-
+        info_dict['min_threshold'], info_dict['max_threshold'] = lower_threshold, upper_threshold
         return info_dict
 
 
