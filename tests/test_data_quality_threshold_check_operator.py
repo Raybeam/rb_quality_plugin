@@ -49,8 +49,8 @@ def make_threshold_check_task(sql, min_thresh, max_thresh, eval_thresh):
             threshold_conn_type="postgres",
             threshold_conn_id="test",
             sql=sql,
-            min_threshold=min_thresh,
-            max_threshold=max_thresh,
+            min_threshold_sql=min_thresh,
+            max_threshold_sql=max_thresh,
             eval_threshold=eval_thresh
         )
     else:

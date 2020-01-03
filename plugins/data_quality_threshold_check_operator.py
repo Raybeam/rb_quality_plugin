@@ -24,8 +24,10 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
 
     @apply_defaults
     def __init__(self,
-                 min_threshold,
-                 max_threshold,
+                 min_threshold=None,
+                 max_threshold=None,
+                 min_threshold_sql=None,
+                 max_threshold_sql=None,
                  eval_threshold=False,
                  threshold_conn_type=None,
                  threshold_conn_id=None,
@@ -35,6 +37,8 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
         self.eval_threshold = eval_threshold
         self.min_threshold = min_threshold
         self.max_threshold = max_threshold
+        self.min_threshold_sql = min_threshold_sql
+        self.max_threshold_sql = max_threshold_sql
         self.threshold_conn_type = threshold_conn_type
         self.threshold_conn_id = threshold_conn_id
 
@@ -43,12 +47,12 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
         return self._threshold_conn_type
 
     @property
-    def min_threshold(self):
-        return self._min_threshold
+    def min_threshold_sql(self):
+        return self._min_threshold_sql
 
     @property
-    def max_threshold(self):
-        return self._max_threshold
+    def max_threshold_sql(self):
+        return self._max_threshold_sql
 
     @threshold_conn_type.setter
     def threshold_conn_type(self, conn):
@@ -58,39 +62,41 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
                 raise ValueError(f"""Connection type "{conn}" is not supported""")
         self._threshold_conn_type = conn
 
-    @min_threshold.setter
-    def min_threshold(self, sql):
+    @min_threshold_sql.setter
+    def min_threshold_sql(self, sql):
         if self.eval_threshold:
             keywords = {'INSERT INTO', 'UPDATE', 'DROP', 'ALTER'}
             for kw in keywords:
                 if kw in sql.upper():
                     raise Exception(f"""Cannot use keyword {kw} in a sql query""")
-        self._min_threshold = sql
+        self._min_threshold_sql = sql
 
-    @max_threshold.setter
-    def max_threshold(self, sql):
+    @max_threshold_sql.setter
+    def max_threshold_sql(self, sql):
         if self.eval_threshold:
             keywords = {'INSERT INTO', 'UPDATE', 'DROP', 'ALTER'}
             for kw in keywords:
                 if kw in sql.upper():
                     raise Exception(f"""Cannot use keyword {kw} in a sql query""")
-        self._max_threshold = sql
+        self._max_threshold_sql = sql
 
     def execute(self, context):
-        info_dict = super().execute(context=context)
-        result = info_dict['result']
+        result = self.get_result(self.conn_type, self.conn_id, self.sql)
+        info_dict = {
+            "result" : result,
+            "description" : self.check_description,
+            "task_id" : self.task_id,
+            "execution_date" : context.get("execution_date")
+        }
 
         if self.eval_threshold:
-            upper_threshold = self.get_result(self.threshold_conn_type, self.threshold_conn_id, self.max_threshold)
-            lower_threshold = self.get_result(self.threshold_conn_type, self.threshold_conn_id, self.min_threshold)
-        else:
-            upper_threshold = self.max_threshold
-            lower_threshold = self.min_threshold
-        if lower_threshold < result < upper_threshold:
+            self.min_threshold = self.get_result(self.threshold_conn_type, self.threshold_conn_id, self.min_threshold_sql)
+            self.max_threshold = self.get_result(self.threshold_conn_type, self.threshold_conn_id, self.max_threshold_sql)
+        if self.min_threshold < result < self.max_threshold:
             info_dict['within_threshold'] = True
         else:
             info_dict['within_threshold'] = False
-        info_dict['min_threshold'], info_dict['max_threshold'] = lower_threshold, upper_threshold
+        info_dict['min_threshold'], info_dict['max_threshold'] = self.min_threshold, self.max_threshold
         return info_dict
 
 
