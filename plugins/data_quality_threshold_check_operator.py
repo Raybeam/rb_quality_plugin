@@ -74,7 +74,7 @@ class DataQualityThresholdCheckOperator(BaseOperator):
             "max_threshold" : self.max_threshold
         }
 
-        if self.min_threshold < result < self.max_threshold:
+        if self.min_threshold <= result <= self.max_threshold:
             info_dict["within_threshold"] = True
         else:
             info_dict["within_threshold"] = False
