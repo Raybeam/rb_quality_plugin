@@ -20,5 +20,8 @@
 `test_data_quality_threshold_check_operator.py` includes tests for:
 - Test result of dq check is within threshold values
 - Test result of dq check is outside threshold values
+
+## DataQualityThresholdSQLCheckOperator
+`test_data_quality_threshold_sql_check_operator.py` inculdes tests for:
 - Test result of dq check is within evaluated min/max thresholds
 - Test result of dq check is outside evaluated min/max thresholds
