@@ -6,16 +6,17 @@ class DataQualityThresholdSQLCheckOperator(DataQualityThresholdCheckOperator):
     """
     DataQualityThresholdSQLCheckOperator inherits from DataQualityThresholdCheckOperator.
     This operator will first calculate the min and max threshold values with given sql
-    statements, and then compare the threshold values with the data quality check result.
+    statements from a defined source, evaluate the data quality check, and then compare
+    that result to the min and max thresholds calculated.
 
     :param min_threshold_sql: lower bound sql statement
     :type min_threshold_sql: str
     :param max_threshold_sql: upper bound sql statement
     :type max_threshold_sql: str
     :param threshold_conn_type: connection type of threshold sql statement table
-    :type threshoold_conn_type: str
+    :type threshold_conn_type: str
     :param threshold_conn_id: connection id of threshold sql statement table
-    :type threshoold_conn_id: str
+    :type threshold_conn_id: str
     """
 
     @apply_defaults
