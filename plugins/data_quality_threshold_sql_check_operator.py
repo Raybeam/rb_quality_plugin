@@ -1,8 +1,9 @@
 from airflow.utils.decorators import apply_defaults
 from airflow.plugins_manager import AirflowPlugin
-from data_quality_threshold_check_operator import DataQualityThresholdCheckOperator, get_result
 
-class DataQualityThresholdSQLCheckOperator(DataQualityThresholdCheckOperator):
+from base_data_quality_operator import BaseDataQualityOperator, get_result
+
+class DataQualityThresholdSQLCheckOperator(BaseDataQualityOperator):
     """
     DataQualityThresholdSQLCheckOperator inherits from DataQualityThresholdCheckOperator.
     This operator will first calculate the min and max threshold values with given sql
@@ -48,7 +49,21 @@ class DataQualityThresholdSQLCheckOperator(DataQualityThresholdCheckOperator):
         self.min_threshold = get_result(self.threshold_conn_type, self.threshold_conn_id, self.min_threshold_sql)
         self.max_threshold = get_result(self.threshold_conn_type, self.threshold_conn_id, self.max_threshold_sql)
 
-        info_dict = super().execute(context=context)
+        result = get_result(self.conn_type, self.conn_id, self.sql)
+        info_dict = {
+            "result" : result,
+            "description" : self.check_description,
+            "task_id" : self.task_id,
+            "execution_date" : context.get("execution_date"),
+            "min_threshold" : self.min_threshold,
+            "max_threshold" : self.max_threshold
+        }
+
+        if self.min_threshold <= result <= self.max_threshold:
+            info_dict["within_threshold"] = True
+        else:
+            info_dict["within_threshold"] = False
+        self.push(info_dict)
         return info_dict
 
 class DataQualityThresholdSQLCheckPlugin(AirflowPlugin):
