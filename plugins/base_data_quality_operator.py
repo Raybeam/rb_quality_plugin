@@ -8,9 +8,8 @@ from airflow.hooks.hive_hooks import HiveServer2Hook
 
 class BaseDataQualityOperator(BaseOperator):
     """
-    BaseDataQualityOperator executes a data quality sql statement,
-    and optionally pushes results and metadata to an external
-    database for storage.
+    BaseDataQualityOperator is an abstract base operator class to
+    perform data quality checks
 
     :param sql: sql code to be executed
     :type sql: str
@@ -45,15 +44,6 @@ class BaseDataQualityOperator(BaseOperator):
         self.sql = sql
         self.check_description = check_description
 
-    def execute(self, context):
-        info_dict = { 'result': self.get_result(self.conn_type, self.conn_id, self.sql),
-                      'description': self.check_description,
-                      'task_id': self.task_id,
-                      'execution_date': context['execution_date']
-                      }
-        self.push(info_dict)
-        return info_dict
-
     @property
     def conn_type(self):
         return self._conn_type
@@ -64,28 +54,43 @@ class BaseDataQualityOperator(BaseOperator):
         if conn not in conn_types:
             raise ValueError(f"""Connection type of "{conn}" not currently supported""")
         self._conn_type = conn
-
-    def _get_hook(self, conn_type, conn_id):
-        if conn_type == "postgres":
-            return PostgresHook(postgres_conn_id=conn_id)
-        if conn_type == "mysql":
-            return MySqlHook(mysql_conn_id=conn_id)
-        if conn_type == "hive":
-            return HiveServer2Hook(hiveserver2_conn_id=conn_id)
-
-    def get_result(self, conn_type, conn_id, sql):
-        hook = self._get_hook(conn_type, conn_id)
-        result = hook.get_records(sql)
-        if len(result) > 1:
-            logging.info("Result: %s contains more than 1 entry", str(result))
-            raise ValueError("Result from sql query contains more than 1 entry")
-        if len(result) < 1:
-            raise ValueError("No result returned from sql query")
-        if len(result[0]) != 1:
-            logging.info("Result: %s does not contain exactly 1 column", str(result[0]))
-            raise ValueError("Result from sql query does not contain exactly 1 column")
-        return result[0][0]
-
+    
+    def execute(self, context):
+        """Method where data quality check is performed """
+        raise NotImplementedError
+    
     def push(self, info_dict):
         """Send data check info and metadata to an external database."""
         raise NotImplementedError()
+
+def _get_hook(conn_type, conn_id):
+    """
+    _get_hook is a helper function for get_sql_value. Returns a database
+    hook depending on the conn_type and conn_id specified. Method will raise
+    an exception if hook is not supported.
+    """
+    if conn_type == "postgres":
+        return PostgresHook(postgres_conn_id=conn_id)
+    if conn_type == "mysql":
+        return MySqlHook(mysql_conn_id=conn_id)
+    if conn_type == "hive":
+        return HiveServer2Hook(hiveserver2_conn_id=conn_id)
+    else:
+        raise ValueError(f"""Connection type of "{conn_type}" not currently supported""")
+
+def get_sql_value(conn_type, conn_id, sql):
+    """
+    get_sql_value executes a sql query given proper connection parameters.
+    The result of the sql query should be one and only one numeric value.
+    """
+    hook = _get_hook(conn_type, conn_id)
+    result = hook.get_records(sql)
+    if len(result) > 1:
+        logging.info("Result: %s contains more than 1 entry", str(result))
+        raise ValueError("Result from sql query contains more than 1 entry")
+    if len(result) < 1:
+        raise ValueError("No result returned from sql query")
+    if len(result[0]) != 1:
+        logging.info("Result: %s does not contain exactly 1 column", str(result[0]))
+        raise ValueError("Result from sql query does not contain exactly 1 column")
+    return result[0][0]
