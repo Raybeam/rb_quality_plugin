@@ -10,10 +10,10 @@ from airflow.hooks.mysql_hook import MySqlHook
 from airflow.hooks.hive_hooks import HiveServer2Hook
 from airflow.models import TaskInstance
 
-from plugins.base_data_quality_operator import BaseDataQualityOperator, get_result
+from plugins.base_data_quality_operator import BaseDataQualityOperator, get_sql_value
 
 
-def test_get_result_one_result(mocker):
+def test_get_sql_value_one_result(mocker):
     mocker.patch.object(
         PostgresHook,
         "get_records",
@@ -27,7 +27,7 @@ def test_get_result_one_result(mocker):
         sql='SELECT COUNT(1) FROM test;'
     )
 
-    result = get_result(
+    result = get_sql_value(
         conn_type=task.conn_type,
         conn_id=task.conn_id,
         sql=task.sql
@@ -35,7 +35,7 @@ def test_get_result_one_result(mocker):
 
     assert result == 10
 
-def test_get_result_not_one_result(mocker):
+def test_get_sql_value_not_one_result(mocker):
     mocker.patch.object(
         HiveServer2Hook,
         "get_records",
@@ -50,13 +50,13 @@ def test_get_result_not_one_result(mocker):
     )
 
     with pytest.raises(ValueError):
-        get_result(
+        get_sql_value(
             conn_type=task.conn_type,
             conn_id=task.conn_id,
             sql=task.sql
         )
 
-def test_get_result_no_result(mocker):
+def test_get_sql_value_no_result(mocker):
     mocker.patch.object(
         MySqlHook,
         "get_records",
@@ -71,13 +71,13 @@ def test_get_result_no_result(mocker):
     )
 
     with pytest.raises(ValueError):
-        get_result(
+        get_sql_value(
             conn_type=task.conn_type,
             conn_id=task.conn_id,
             sql=task.sql
         )
 
-def test_get_result_multiple_results(mocker):
+def test_get_sql_value_multiple_results(mocker):
     mocker.patch.object(
         MySqlHook,
         "get_records",
@@ -92,13 +92,13 @@ def test_get_result_multiple_results(mocker):
     )
 
     with pytest.raises(ValueError):
-        get_result(
+        get_sql_value(
             conn_type=task.conn_type,
             conn_id=task.conn_id,
             sql=task.sql
         )
 
-def test_get_result_invalid_connection():
+def test_get_sql_value_invalid_connection():
     with pytest.raises(ValueError):
         BaseDataQualityOperator(
             task_id="one_result_task",

@@ -1,7 +1,7 @@
 from airflow.utils.decorators import apply_defaults
 from airflow.plugins_manager import AirflowPlugin
 
-from base_data_quality_operator import BaseDataQualityOperator, get_result
+from base_data_quality_operator import BaseDataQualityOperator, get_sql_value
 
 class DataQualityThresholdSQLCheckOperator(BaseDataQualityOperator):
     """
@@ -46,10 +46,10 @@ class DataQualityThresholdSQLCheckOperator(BaseDataQualityOperator):
         self._threshold_conn_type = conn
 
     def execute(self, context):
-        self.min_threshold = get_result(self.threshold_conn_type, self.threshold_conn_id, self.min_threshold_sql)
-        self.max_threshold = get_result(self.threshold_conn_type, self.threshold_conn_id, self.max_threshold_sql)
+        self.min_threshold = get_sql_value(self.threshold_conn_type, self.threshold_conn_id, self.min_threshold_sql)
+        self.max_threshold = get_sql_value(self.threshold_conn_type, self.threshold_conn_id, self.max_threshold_sql)
 
-        result = get_result(self.conn_type, self.conn_id, self.sql)
+        result = get_sql_value(self.conn_type, self.conn_id, self.sql)
         info_dict = {
             "result" : result,
             "description" : self.check_description,

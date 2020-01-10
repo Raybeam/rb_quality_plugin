@@ -8,7 +8,7 @@ from airflow.hooks.hive_hooks import HiveServer2Hook
 
 class BaseDataQualityOperator(BaseOperator):
     """
-    BaseDataQualityOperator an abstract base operator class to
+    BaseDataQualityOperator is an abstract base operator class to
     perform data quality checks
 
     :param sql: sql code to be executed
@@ -55,19 +55,34 @@ class BaseDataQualityOperator(BaseOperator):
             raise ValueError(f"""Connection type of "{conn}" not currently supported""")
         self._conn_type = conn
     
+    def execute(self, context):
+        """Method where data quality check is performed """
+        raise NotImplementedError
+    
     def push(self, info_dict):
         """Send data check info and metadata to an external database."""
         raise NotImplementedError()
 
 def _get_hook(conn_type, conn_id):
+    """
+    _get_hook is a helper function for get_sql_value. Returns a database
+    hook depending on the conn_type and conn_id specified. Method will raise
+    an exception if hook is not supported.
+    """
     if conn_type == "postgres":
         return PostgresHook(postgres_conn_id=conn_id)
     if conn_type == "mysql":
         return MySqlHook(mysql_conn_id=conn_id)
     if conn_type == "hive":
         return HiveServer2Hook(hiveserver2_conn_id=conn_id)
+    else:
+        raise ValueError(f"""Connection type of "{conn_type}" not currently supported""")
 
-def get_result(conn_type, conn_id, sql):
+def get_sql_value(conn_type, conn_id, sql):
+    """
+    get_sql_value executes a sql query given proper connection parameters.
+    The result of the sql query should be one and only one numeric value.
+    """
     hook = _get_hook(conn_type, conn_id)
     result = hook.get_records(sql)
     if len(result) > 1:

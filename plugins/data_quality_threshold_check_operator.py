@@ -7,7 +7,7 @@ from airflow.hooks.postgres_hook import PostgresHook
 from airflow.hooks.mysql_hook import MySqlHook
 from airflow.hooks.hive_hooks import HiveServer2Hook
 
-from base_data_quality_operator import BaseDataQualityOperator, get_result
+from base_data_quality_operator import BaseDataQualityOperator, get_sql_value
 
 class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
     """
@@ -31,7 +31,7 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
         self.max_threshold = max_threshold
 
     def execute(self, context):
-        result = get_result(self.conn_type, self.conn_id, self.sql)
+        result = get_sql_value(self.conn_type, self.conn_id, self.sql)
         info_dict = {
             "result" : result,
             "description" : self.check_description,
