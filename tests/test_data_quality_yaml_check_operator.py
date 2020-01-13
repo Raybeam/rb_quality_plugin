@@ -55,12 +55,13 @@ def test_inside_threshold_values(mocker):
     )
     task.push = Mock(return_value=None)
 
-    with patch.object(task, "send_notification") as notification_mock:
+    with patch.object(task, "send_email_notification") as notification_mock:
         result = task.execute(context={
             "execution_date" : datetime.now()
         })
-    assert not notification_mock
+
     assert len(result) == 7
+    assert not notification_mock.called
     assert result["within_threshold"]
 
 def test_inside_threshold_sql(mocker):
@@ -78,13 +79,13 @@ def test_inside_threshold_sql(mocker):
     )
     task.push = Mock(return_value=None)
 
-    with patch.object(task, "send_notification") as notification_mock:
+    with patch.object(task, "send_email_notification") as notification_mock:
         result = task.execute(context={
             "execution_date" : datetime.now()
         })
 
-    assert not notification_mock
     assert len(result) == 7
+    assert not notification_mock.called
     assert result["within_threshold"]
 
 def test_outside_threshold_values(mocker):
@@ -102,14 +103,14 @@ def test_outside_threshold_values(mocker):
     )
     task.push = Mock(return_value=None)
 
-    with patch.object(task, "send_notification") as notification_mock:
+    with patch.object(task, "send_email_notification") as notification_mock:
         result = task.execute(context={
             "execution_date" : datetime.now()
         })
 
-    assert notification_mock
     assert len(result) == 7
-    assert result["within_threshold"]
+    assert notification_mock.called
+    assert not result["within_threshold"]
 
 def test_outside_threshold_sql(mocker):
     yaml_path = YAML_PATH / "test_outside_threshold_sql.yaml"
@@ -126,13 +127,13 @@ def test_outside_threshold_sql(mocker):
     )
     task.push = Mock(return_value=None)
 
-    with patch.object(task, "send_notification") as notification_mock:
+    with patch.object(task, "send_email_notification") as notification_mock:
         result = task.execute(context={
             "execution_date" : datetime.now()
         })
 
-    assert notification_mock
     assert len(result) == 7
+    assert notification_mock.called
     assert not result["within_threshold"]
 
 def test_invalid_yaml_path():
