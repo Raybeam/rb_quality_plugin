@@ -23,3 +23,10 @@
 `test_data_quality_threshold_sql_check_operator.py` includes tests for:
 - Test result of dq check is within evaluated min/max thresholds
 - Test result of dq check is outside evaluated min/max thresholds
+
+## DataQualityYAMLCheckOperator
+`test_data_quality_yaml_check_operator.py` includes tests for:
+- Tests result of dq check is within threshold values; loaded from YAML config file
+- Tests result of dq check is within threshold sql evaluated values; loaded from YAML config file
+- Tests result of dq check is outside threshold values & checks if email notification is sent; loaded from YAML config file
+- Tests result of dq check is outside threshold sql evaluated values & checks if email notification is sent; loaded from YAML config file

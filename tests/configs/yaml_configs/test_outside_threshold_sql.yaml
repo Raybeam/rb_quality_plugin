@@ -1,0 +1,16 @@
+test_name: Test
+check_description: >
+  test to check proper functionality when data quality
+  check is outside of threshold. Will send a call to send email
+threshold:
+    eval_threshold: True
+    min_threshold_sql: SELECT MIN(cost) FROM price;
+    max_threshold_sql: SELECT MAX(cost) FROM price;
+    threshold_conn_type: postgres
+    threshold_conn_id: test_id
+fields:
+  conn_id: test_conn
+  conn_type: postgres
+  sql: SELECT MAX(value) FROM test;
+emails:
+  - test_email_user@testemail.com
