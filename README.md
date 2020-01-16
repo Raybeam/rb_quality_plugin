@@ -33,4 +33,5 @@ Tests can be found [here](tests). Test directory gives an outline of each test f
 
 ## Diagram
 Here is a diagram of the inheritance of each plugin.
+
 ![data quality diagram](DataQualityModule.jpg)
