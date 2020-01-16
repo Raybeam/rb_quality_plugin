@@ -52,7 +52,7 @@ def test_inside_threshold_eval(mocker):
     )
 
     task = DataQualityThresholdSQLCheckOperator(
-        task_id="test",
+        task_id="test_inside_threshold_eval",
         conn_type="postgres",
         conn_id="postgres",
         threshold_conn_type="postgres",
@@ -83,7 +83,7 @@ def test_outside_threshold_eval(mocker):
     )
 
     task = DataQualityThresholdSQLCheckOperator(
-        task_id="test",
+        task_id="test_outside_threshold_eval",
         conn_type="postgres",
         conn_id="postgres",
         threshold_conn_type="postgres",

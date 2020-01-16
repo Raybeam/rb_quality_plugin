@@ -1,5 +1,6 @@
 import logging
 
+from airflow.utils.email import send_email
 from airflow.utils.decorators import apply_defaults
 from airflow.models import BaseOperator
 from airflow.hooks.postgres_hook import PostgresHook
@@ -33,6 +34,7 @@ class BaseDataQualityOperator(BaseOperator):
                  push_conn_type=None,
                  push_conn_id=None,
                  check_description=None,
+                 notification_emails=[],
                  *args,
                  **kwargs
                  ):
@@ -43,6 +45,7 @@ class BaseDataQualityOperator(BaseOperator):
         self.push_conn_type = push_conn_type
         self.sql = sql
         self.check_description = check_description
+        self.notification_emails=notification_emails
 
     @property
     def conn_type(self):
@@ -62,6 +65,20 @@ class BaseDataQualityOperator(BaseOperator):
     def push(self, info_dict):
         """Send data check info and metadata to an external database."""
         raise NotImplementedError()
+
+    def send_email_notification(self, info_dict):
+        body = f"""<h1>Data Quality Check: "{info_dict.get("task_id")}" failed.</h1><br>
+<b>DAG:</b> {self.dag_id}<br>
+<b>Task_id:</b> {info_dict.get("task_id")}<br>
+<b>Check description:</b> {info_dict.get("description")}<br>
+<b>Execution date:</b> {info_dict.get("execution_date")}<br>
+<b>SQL:</b> {self.sql}<br>
+<b>Result:</b> {round(info_dict.get("result"), 2)} is not within thresholds {info_dict.get("min_threshold")} and {info_dict.get("max_threshold")}"""
+        send_email(
+            to=self.notification_emails,
+            subject=f"""Data Quality Check: "{info_dict.get("task_id")}" failed""",
+            html_content=body
+        )
 
 def _get_hook(conn_type, conn_id):
     """

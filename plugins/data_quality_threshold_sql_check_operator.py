@@ -64,6 +64,8 @@ class DataQualityThresholdSQLCheckOperator(BaseDataQualityOperator):
             info_dict["within_threshold"] = True
         else:
             info_dict["within_threshold"] = False
+            if self.notification_emails:
+                self.send_email_notification(info_dict)
         self.push(info_dict)
         return info_dict
 
