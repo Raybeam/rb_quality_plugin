@@ -5,7 +5,7 @@ An Airflow module that includes operators to perform data quality checks. This m
 
 Optionally: 
 
- - If it exceeds the specified threshold level and an Airflow operator that sends an alert through Slack or email about given threshold breach
+ - If it exceeds the specified threshold level and an Airflow operator that sends an alert through email about given threshold breach
  - Results can be pushed to an external database to store the execution results history
 
 ## Features
@@ -36,7 +36,8 @@ YAML files can be used as configurations for each operator. A DAG-level implemen
 ## Tests
 Tests can be found [here](tests). Test directory gives an outline of each test file and the purpose of each. Additionally, it contains test configurations such as a sql script that creates test tables and configuration YAML files.
 
-## Diagram
-Here is a diagram of the inheritance of each plugin.
+## Flowchart Diagrams
+Diagrams below visualize flow of execution when `DataQualityThresholdCheckOperator` and `DataQualityThresholdSQLCheckOperator` are signaled to execute.
 
-![data quality diagram](DataQualityModule.jpg)
+![data_quality_threshold_check_operator diagram](operator_diagrams/data_quality_threshold_check_operator_flowchart.png)
+![data_quality_threshold_sql_check_operator diagram](operator_diagrams/data_quality_threshold_sql_check_operator_flowchart.png)
