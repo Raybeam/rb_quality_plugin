@@ -167,5 +167,5 @@ def test_outside_threshold_sql(mocker):
         })
 
     assert len(result) == 7
-    assert notification_mock.called
+    assert not notification_mock.called
     assert not result["within_threshold"]

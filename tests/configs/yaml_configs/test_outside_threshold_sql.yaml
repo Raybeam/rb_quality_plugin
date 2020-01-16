@@ -13,5 +13,3 @@ fields:
   conn_id: test_conn
   conn_type: postgres
   sql: SELECT MAX(value) FROM test;
-notification_emails:
-  - test_email_user@testemail.com
