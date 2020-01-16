@@ -39,5 +39,8 @@ Tests can be found [here](tests). Test directory gives an outline of each test f
 ## Flowchart Diagrams
 Diagrams below visualize flow of execution when `DataQualityThresholdCheckOperator` and `DataQualityThresholdSQLCheckOperator` are signaled to execute.
 
+### DataQualityThresholdCheckOperator Flowchart
 ![data_quality_threshold_check_operator diagram](operator_diagrams/data_quality_threshold_check_operator_flowchart.png)
+
+### DataQualityThresholdSQLCheckOperator Flowchart
 ![data_quality_threshold_sql_check_operator diagram](operator_diagrams/data_quality_threshold_sql_check_operator_flowchart.png)
