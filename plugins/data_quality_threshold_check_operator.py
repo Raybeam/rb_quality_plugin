@@ -1,11 +1,5 @@
-import logging
-
 from airflow.utils.decorators import apply_defaults
 from airflow.plugins_manager import AirflowPlugin
-from airflow.models import BaseOperator
-from airflow.hooks.postgres_hook import PostgresHook
-from airflow.hooks.mysql_hook import MySqlHook
-from airflow.hooks.hive_hooks import HiveServer2Hook
 
 from base_data_quality_operator import BaseDataQualityOperator, get_sql_value
 

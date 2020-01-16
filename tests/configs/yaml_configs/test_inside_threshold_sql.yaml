@@ -1,3 +1,4 @@
+data_quality_class: DataQualityThresholdSQLCheckOperator
 test_name: test_inside_threshold_sql
 check_description: >
   test to check proper functionality when data quality

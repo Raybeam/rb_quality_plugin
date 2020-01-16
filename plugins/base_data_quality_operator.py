@@ -24,6 +24,8 @@ class BaseDataQualityOperator(BaseOperator):
     :type push_conn_id: str
     :param check_description: (optional) description of data quality sql statement
     :type check_description: str
+    :param notification_emails: (optional) list of emails to notify if test fails
+    :type notification_emails: list[str]
     """
 
     @apply_defaults
@@ -34,7 +36,7 @@ class BaseDataQualityOperator(BaseOperator):
                  push_conn_type=None,
                  push_conn_id=None,
                  check_description=None,
-                 notification_emails=[],
+                 notification_emails=None,
                  *args,
                  **kwargs
                  ):
@@ -45,7 +47,7 @@ class BaseDataQualityOperator(BaseOperator):
         self.push_conn_type = push_conn_type
         self.sql = sql
         self.check_description = check_description
-        self.notification_emails=notification_emails
+        self.notification_emails = notification_emails
 
     @property
     def conn_type(self):
@@ -57,14 +59,14 @@ class BaseDataQualityOperator(BaseOperator):
         if conn not in conn_types:
             raise ValueError(f"""Connection type of "{conn}" not currently supported""")
         self._conn_type = conn
-    
+
     def execute(self, context):
         """Method where data quality check is performed """
         raise NotImplementedError
-    
+
     def push(self, info_dict):
         """Send data check info and metadata to an external database."""
-        raise NotImplementedError()
+        pass
 
     def send_email_notification(self, info_dict):
         body = f"""<h1>Data Quality Check: "{info_dict.get("task_id")}" failed.</h1><br>

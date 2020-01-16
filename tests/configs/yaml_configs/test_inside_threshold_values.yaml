@@ -1,3 +1,4 @@
+data_quality_class: DataQualityThresholdCheckOperator
 test_name: test_inside_threshold_values
 check_description: >
   test to check proper functionality when data quality

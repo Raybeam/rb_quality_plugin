@@ -31,7 +31,8 @@ def get_data_quality_operator(conf, dag):
         "sql" : conf.get("fields").get("sql"),
         "push_conn_type" : conf.get("fields").get("push_conn_type"),
         "push_conn_id" : conf.get("fields").get("push_conn_id"),
-        "check_description" : conf.get("check_description")
+        "check_description" : conf.get("check_description"),
+        "notification_emails" : conf.get("notification_emails", [])
     }
     test_class = conf.get("data_quality_class")
     if test_class == "DataQualityThresholdSQLCheckOperator":
