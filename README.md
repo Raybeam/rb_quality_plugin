@@ -1,7 +1,12 @@
 # airflow-dq
 
 ## Introduction
-This Airflow module includes support to perform data quality checks in a workflow.
+An Airflow module that includes operators to perform data quality checks. This module includes an Airflow operator that periodically check the results of a query and validates it against a specified threshold.  
+
+Optionally: 
+
+ - If it exceeds the specified threshold level and an Airflow operator that sends an alert through Slack or email about given threshold breach
+ - Results can be pushed to an external database to store the execution results history
 
 ## Features
 This Airflow module contains the following operators:
