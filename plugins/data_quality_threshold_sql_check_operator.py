@@ -40,10 +40,9 @@ class DataQualityThresholdSQLCheckOperator(BaseDataQualityOperator):
 
     @threshold_conn_type.setter
     def threshold_conn_type(self, conn):
-        if conn is not None:
-            conn_types = {"postgres", "mysql", "hive"}
-            if conn not in conn_types:
-                raise ValueError(f"""Connection type of "{conn}" not currently supported""")
+        conn_types = {"postgres", "mysql", "hive"}
+        if conn not in conn_types:
+            raise ValueError(f"""Connection type of "{conn}" not currently supported""")
         self._threshold_conn_type = conn
 
     def execute(self, context):

@@ -2,7 +2,7 @@ data_quality_class: DataQualityThresholdSQLCheckOperator
 test_name: test_outside_threshold_sql
 check_description: >
   test to check proper functionality when data quality
-  check is outside of threshold. Will send a call to send email
+  check is outside of threshold.
 threshold:
     eval_threshold: True
     min_threshold_sql: SELECT MIN(cost) FROM price;
