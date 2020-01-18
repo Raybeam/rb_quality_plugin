@@ -1,10 +1,8 @@
-data_quality_class: DataQualityThresholdCheckOperator
 test_name: test_outside_threshold_values
 check_description: >
   test to check proper functionality when data quality
   check is outside of threshold. Will send a call to send email
 threshold:
-    eval_threshold: False
     min_threshold: 10
     max_threshold: 15
 fields:

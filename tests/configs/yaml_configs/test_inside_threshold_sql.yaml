@@ -1,10 +1,8 @@
-data_quality_class: DataQualityThresholdSQLCheckOperator
 test_name: test_inside_threshold_sql
 check_description: >
   test to check proper functionality when data quality
   check is inside of threshold.
 threshold:
-    eval_threshold: True
     min_threshold_sql: SELECT MIN(cost) FROM price;
     max_threshold_sql: SELECT MAX(cost) FROM price;
     threshold_conn_type: postgres
