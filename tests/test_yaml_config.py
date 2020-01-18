@@ -1,12 +1,15 @@
 from pathlib import Path
 from datetime import datetime
 from unittest.mock import Mock, patch
+from collections import defaultdict
 import testing.postgresql
 import psycopg2
 
 from airflow.operators.data_quality_threshold_check_operator import DataQualityThresholdCheckOperator
 from airflow.operators.data_quality_threshold_sql_check_operator import DataQualityThresholdSQLCheckOperator
 from airflow.hooks.postgres_hook import PostgresHook
+from airflow.hooks.base_hook import BaseHook
+from airflow.models import Connection
 
 import yaml
 
@@ -42,33 +45,35 @@ def get_records_mock(sql):
 
     return result
 
+def recursive_make_defaultdict(conf):
+    if isinstance(conf, dict):
+        for key in conf.keys():
+            conf[key] = recursive_make_defaultdict(conf[key])
+        return defaultdict(lambda: None, conf)
+    return conf
+
 def get_data_quality_operator(conf):
     kwargs = {
-        "conn_type" : conf.get("fields").get("conn_type"),
-        "conn_id" : conf.get("fields").get("conn_id"),
-        "sql" : conf.get("fields").get("sql"),
-        "push_conn_type" : conf.get("fields").get("push_conn_type"),
-        "push_conn_id" : conf.get("fields").get("push_conn_id"),
-        "check_description" : conf.get("check_description"),
-        "notification_emails" : conf.get("notification_emails", [])
+        "conn_id" : conf["fields"]["conn_id"],
+        "sql" : conf["fields"]["sql"],
+        "push_conn_id" : conf["push_conn_id"],
+        "check_description" : conf["check_description"],
+        "notification_emails" : conf["notification_emails"]
     }
-    test_class = conf.get("data_quality_class")
-    if test_class == "DataQualityThresholdSQLCheckOperator":
+
+    if conf["threshold"]["min_threshold_sql"]:
         task = DataQualityThresholdSQLCheckOperator(
-            task_id=conf.get("test_name"),
-            min_threshold_sql=conf.get("threshold").get("min_threshold_sql"),
-            max_threshold_sql=conf.get("threshold").get("max_threshold_sql"),
-            threshold_conn_type=conf.get("threshold").get("threshold_conn_type"),
-            threshold_conn_id=conf.get("threshold").get("threshold_conn_id"),
-            **kwargs)
-    elif test_class == "DataQualityThresholdCheckOperator":
-        task = DataQualityThresholdCheckOperator(
-            task_id=conf.get("test_name"),
-            min_threshold=conf.get("threshold").get("min_threshold"),
-            max_threshold=conf.get("threshold").get("max_threshold"),
+            task_id=conf["test_name"],
+            min_threshold_sql=conf["threshold"]["min_threshold_sql"],
+            max_threshold_sql=conf["threshold"]["max_threshold_sql"],
+            threshold_conn_id=conf["threshold"]["threshold_conn_id"],
             **kwargs)
     else:
-        raise ValueError(f"""Invalid Data Quality Operator class {test_class}""")
+        task = DataQualityThresholdCheckOperator(
+            task_id=conf["test_name"],
+            min_threshold=conf["threshold"]["min_threshold"],
+            max_threshold=conf["threshold"]["max_threshold"],
+            **kwargs)
     return task
 
 def test_inside_threshold_values(mocker):
@@ -79,8 +84,16 @@ def test_inside_threshold_values(mocker):
         "get_records",
         side_effect=get_records_mock
     )
+
+    mocker.patch.object(
+        BaseHook,
+        "get_connection",
+        return_value=Connection(conn_id='test_id',conn_type='postgres')
+    )
+
     with open(yaml_path) as config:
-        task = get_data_quality_operator(yaml.safe_load(config))
+        conf = recursive_make_defaultdict(yaml.safe_load(config))
+    task = get_data_quality_operator(conf)
 
     assert isinstance(task, DataQualityThresholdCheckOperator)
 
@@ -104,8 +117,15 @@ def test_inside_threshold_sql(mocker):
         side_effect=get_records_mock
     )
 
+    mocker.patch.object(
+        BaseHook,
+        "get_connection",
+        return_value=Connection(conn_id='test_id',conn_type='postgres')
+    )
+
     with open(yaml_path) as config:
-        task = get_data_quality_operator(yaml.safe_load(config))
+        conf = recursive_make_defaultdict(yaml.safe_load(config))
+    task = get_data_quality_operator(conf)
 
     assert isinstance(task, DataQualityThresholdSQLCheckOperator)
 
@@ -129,8 +149,15 @@ def test_outside_threshold_values(mocker):
         side_effect=get_records_mock
     )
 
+    mocker.patch.object(
+        BaseHook,
+        "get_connection",
+        return_value=Connection(conn_id='test_id',conn_type='postgres')
+    )
+
     with open(yaml_path) as config:
-        task = get_data_quality_operator(yaml.safe_load(config))
+        conf = recursive_make_defaultdict(yaml.safe_load(config))
+    task = get_data_quality_operator(conf)
 
     assert isinstance(task, DataQualityThresholdCheckOperator)
 
@@ -154,8 +181,15 @@ def test_outside_threshold_sql(mocker):
         side_effect=get_records_mock
     )
 
+    mocker.patch.object(
+        BaseHook,
+        "get_connection",
+        return_value=Connection(conn_id='test_id',conn_type='postgres')
+    )
+
     with open(yaml_path) as config:
-        task = get_data_quality_operator(yaml.safe_load(config))
+        conf = recursive_make_defaultdict(yaml.safe_load(config))
+    task = get_data_quality_operator(conf)
 
     assert isinstance(task, DataQualityThresholdSQLCheckOperator)
 

@@ -33,10 +33,8 @@ def recursive_make_defaultdict(conf):
 
 def get_data_quality_operator(conf, dag):
     kwargs = {
-        "conn_type" : conf["fields"]["conn_type"],
         "conn_id" : conf["fields"]["conn_id"],
         "sql" : conf["fields"]["sql"],
-        "push_conn_type" : conf["push_conn_type"],
         "push_conn_id" : conf["push_conn_id"],
         "check_description" : conf["check_description"],
         "notification_emails" : conf["notification_emails"]
@@ -47,7 +45,6 @@ def get_data_quality_operator(conf, dag):
             task_id=conf["test_name"],
             min_threshold_sql=conf["threshold"]["min_threshold_sql"],
             max_threshold_sql=conf["threshold"]["max_threshold_sql"],
-            threshold_conn_type=conf["threshold"]["threshold_conn_type"],
             threshold_conn_id=conf["threshold"]["threshold_conn_id"],
             dag=dag,
             **kwargs)

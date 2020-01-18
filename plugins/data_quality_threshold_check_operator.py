@@ -25,7 +25,7 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
         self.max_threshold = max_threshold
 
     def execute(self, context):
-        result = get_sql_value(self.conn_type, self.conn_id, self.sql)
+        result = get_sql_value(self.conn_id, self.sql)
         info_dict = {
             "result" : result,
             "description" : self.check_description,

@@ -5,10 +5,11 @@ import pendulum
 import pytest
 
 from airflow import DAG
+from airflow.hooks.base_hook import BaseHook
 from airflow.hooks.postgres_hook import PostgresHook
 from airflow.hooks.mysql_hook import MySqlHook
 from airflow.hooks.hive_hooks import HiveServer2Hook
-from airflow.models import TaskInstance
+from airflow.models import Connection
 
 from plugins.base_data_quality_operator import BaseDataQualityOperator, get_sql_value
 
@@ -20,15 +21,19 @@ def test_get_sql_value_one_result(mocker):
         return_value=[(10,)]
     )
 
+    mocker.patch.object(
+        BaseHook,
+        "get_connection",
+        return_value=Connection(conn_id='test_id',conn_type='postgres')
+    )
+
     task = BaseDataQualityOperator(
         task_id="one_result_task",
-        conn_type='postgres',
         conn_id='test_id',
         sql='SELECT COUNT(1) FROM test;'
     )
 
     result = get_sql_value(
-        conn_type=task.conn_type,
         conn_id=task.conn_id,
         sql=task.sql
     )
@@ -42,16 +47,20 @@ def test_get_sql_value_not_one_result(mocker):
         return_value=[(10,), (100,)]
     )
 
+    mocker.patch.object(
+        BaseHook,
+        "get_connection",
+        return_value=Connection(conn_id='test_id',conn_type='hive')
+    )
+
     task = BaseDataQualityOperator(
         task_id="one_result_task",
-        conn_type='hive',
         conn_id='test_id',
         sql='SELECT COUNT(1) FROM test;'
     )
 
     with pytest.raises(ValueError):
         get_sql_value(
-            conn_type=task.conn_type,
             conn_id=task.conn_id,
             sql=task.sql
         )
@@ -63,16 +72,20 @@ def test_get_sql_value_no_result(mocker):
         return_value=[]
     )
 
+    mocker.patch.object(
+        BaseHook,
+        "get_connection",
+        return_value=Connection(conn_id='test_id',conn_type='mysql')
+    )
+
     task = BaseDataQualityOperator(
         task_id="one_result_task",
-        conn_type='mysql',
         conn_id='test_id',
         sql='SELECT COUNT(1) FROM test;'
     )
 
     with pytest.raises(ValueError):
         get_sql_value(
-            conn_type=task.conn_type,
             conn_id=task.conn_id,
             sql=task.sql
         )
@@ -84,25 +97,20 @@ def test_get_sql_value_multiple_results(mocker):
         return_value=[(10, "bad value")]
     )
 
+    mocker.patch.object(
+        BaseHook,
+        "get_connection",
+        return_value=Connection(conn_id='test_id',conn_type='mysql')
+    )
+
     task = BaseDataQualityOperator(
         task_id="one_result_task",
-        conn_type='mysql',
         conn_id='test_id',
         sql='SELECT COUNT(1) FROM test;'
     )
 
     with pytest.raises(ValueError):
         get_sql_value(
-            conn_type=task.conn_type,
             conn_id=task.conn_id,
             sql=task.sql
-        )
-
-def test_get_sql_value_invalid_connection():
-    with pytest.raises(ValueError):
-        BaseDataQualityOperator(
-            task_id="one_result_task",
-            conn_type='invalid_type',
-            conn_id='test_id',
-            sql='SELECT COUNT(1) FROM test;'
         )
