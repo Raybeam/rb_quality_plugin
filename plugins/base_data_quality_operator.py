@@ -25,8 +25,6 @@ class BaseDataQualityOperator(BaseOperator):
     :type push_conn_id: str
     :param check_description: (optional) description of data quality sql statement
     :type check_description: str
-    :param notification_emails: (optional) list of emails to notify if test fails
-    :type notification_emails: list[str]
     """
 
     @apply_defaults
@@ -35,7 +33,6 @@ class BaseDataQualityOperator(BaseOperator):
                  conn_id,
                  push_conn_id=None,
                  check_description=None,
-                 notification_emails=None,
                  *args,
                  **kwargs
                  ):
@@ -44,7 +41,6 @@ class BaseDataQualityOperator(BaseOperator):
         self.push_conn_id = push_conn_id
         self.sql = sql
         self.check_description = check_description
-        self.notification_emails = notification_emails
 
     def execute(self, context):
         """Method where data quality check is performed """
