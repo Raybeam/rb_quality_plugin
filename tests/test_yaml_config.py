@@ -2,48 +2,17 @@ from pathlib import Path
 from datetime import datetime
 from unittest.mock import Mock, patch
 from collections import defaultdict
-import testing.postgresql
-import psycopg2
 
 from airflow.operators.data_quality_threshold_check_operator import DataQualityThresholdCheckOperator
 from airflow.operators.data_quality_threshold_sql_check_operator import DataQualityThresholdSQLCheckOperator
 from airflow.hooks.postgres_hook import PostgresHook
 from airflow.hooks.base_hook import BaseHook
-from airflow.models import Connection
+from airflow.models import Connection, TaskInstance
 
 import yaml
+from .helper import get_records_mock, dummy_dag
 
-SQL_PATH = Path(__file__).parents[0] / "configs" / "test_sql_table.sql"
 YAML_PATH = Path(__file__).parents[0] / "configs" / "yaml_configs"
-
-def handler(postgresql):
-    """ Preloads postgres with two testing tables. """
-    with open(SQL_PATH) as table_file:
-        test_table = table_file.read()
-
-    conn = psycopg2.connect(**postgresql.dsn())
-    cursor = conn.cursor()
-    cursor.execute(test_table)
-    cursor.close()
-    conn.commit()
-    conn.close()
-
-def get_records_mock(sql):
-    """ Mock function to replace get_records() with unit test mocker. """
-    Postgresql = testing.postgresql.PostgresqlFactory(
-        on_initialized=handler,
-        cache_initialized_db=True
-    )
-
-    with Postgresql() as psql:
-        conn = psycopg2.connect(**psql.dsn())
-        cursor = conn.cursor()
-        cursor.execute(sql)
-        result = cursor.fetchall()
-        cursor.close()
-        conn.close()
-
-    return result
 
 def recursive_make_defaultdict(conf):
     if isinstance(conf, dict):
@@ -58,7 +27,7 @@ def get_data_quality_operator(conf):
         "sql" : conf["fields"]["sql"],
         "push_conn_id" : conf["push_conn_id"],
         "check_description" : conf["check_description"],
-        "notification_emails" : conf["notification_emails"]
+        "email" : conf["notification_emails"]
     }
 
     if conf["threshold"]["min_threshold_sql"]:
@@ -67,12 +36,14 @@ def get_data_quality_operator(conf):
             min_threshold_sql=conf["threshold"]["min_threshold_sql"],
             max_threshold_sql=conf["threshold"]["max_threshold_sql"],
             threshold_conn_id=conf["threshold"]["threshold_conn_id"],
+            dag=dummy_dag,
             **kwargs)
     else:
         task = DataQualityThresholdCheckOperator(
             task_id=conf["test_name"],
             min_threshold=conf["threshold"]["min_threshold"],
             max_threshold=conf["threshold"]["max_threshold"],
+            dag=dummy_dag,
             **kwargs)
     return task
 
@@ -88,7 +59,7 @@ def test_inside_threshold_values(mocker):
     mocker.patch.object(
         BaseHook,
         "get_connection",
-        return_value=Connection(conn_id='test_id',conn_type='postgres')
+        return_value=Connection(conn_id='test_id', conn_type='postgres')
     )
 
     with open(yaml_path) as config:
@@ -98,14 +69,10 @@ def test_inside_threshold_values(mocker):
     assert isinstance(task, DataQualityThresholdCheckOperator)
 
     task.push = Mock(return_value=None)
-
-    with patch.object(task, "send_email_notification") as notification_mock:
-        result = task.execute(context={
-            "execution_date" : datetime.now()
-        })
+    task_instance = TaskInstance(task=task, execution_date=datetime.now())
+    result = task.execute(task_instance.get_template_context())
 
     assert len(result) == 7
-    assert not notification_mock.called
     assert result["within_threshold"]
 
 def test_inside_threshold_sql(mocker):
@@ -120,7 +87,7 @@ def test_inside_threshold_sql(mocker):
     mocker.patch.object(
         BaseHook,
         "get_connection",
-        return_value=Connection(conn_id='test_id',conn_type='postgres')
+        return_value=Connection(conn_id='test_id', conn_type='postgres')
     )
 
     with open(yaml_path) as config:
@@ -130,14 +97,10 @@ def test_inside_threshold_sql(mocker):
     assert isinstance(task, DataQualityThresholdSQLCheckOperator)
 
     task.push = Mock(return_value=None)
-
-    with patch.object(task, "send_email_notification") as notification_mock:
-        result = task.execute(context={
-            "execution_date" : datetime.now()
-        })
+    task_instance = TaskInstance(task=task, execution_date=datetime.now())
+    result = task.execute(task_instance.get_template_context())
 
     assert len(result) == 7
-    assert not notification_mock.called
     assert result["within_threshold"]
 
 def test_outside_threshold_values(mocker):
@@ -152,7 +115,7 @@ def test_outside_threshold_values(mocker):
     mocker.patch.object(
         BaseHook,
         "get_connection",
-        return_value=Connection(conn_id='test_id',conn_type='postgres')
+        return_value=Connection(conn_id='test_id', conn_type='postgres')
     )
 
     with open(yaml_path) as config:
@@ -162,14 +125,18 @@ def test_outside_threshold_values(mocker):
     assert isinstance(task, DataQualityThresholdCheckOperator)
 
     task.push = Mock(return_value=None)
+    task_instance = TaskInstance(task=task, execution_date=datetime.now())
 
-    with patch.object(task, "send_email_notification") as notification_mock:
-        result = task.execute(context={
-            "execution_date" : datetime.now()
-        })
+    mock_patch = patch.object(
+        DataQualityThresholdCheckOperator,
+        "send_failure_notification",
+        side_effect=lambda info_dict: info_dict)
 
+    with mock_patch as notif_mock:
+        result = task.execute(task_instance.get_template_context())
+
+    assert notif_mock.called
     assert len(result) == 7
-    assert notification_mock.called
     assert not result["within_threshold"]
 
 def test_outside_threshold_sql(mocker):
@@ -184,7 +151,7 @@ def test_outside_threshold_sql(mocker):
     mocker.patch.object(
         BaseHook,
         "get_connection",
-        return_value=Connection(conn_id='test_id',conn_type='postgres')
+        return_value=Connection(conn_id='test_id', conn_type='postgres')
     )
 
     with open(yaml_path) as config:
@@ -194,12 +161,16 @@ def test_outside_threshold_sql(mocker):
     assert isinstance(task, DataQualityThresholdSQLCheckOperator)
 
     task.push = Mock(return_value=None)
+    task_instance = TaskInstance(task=task, execution_date=datetime.now())
 
-    with patch.object(task, "send_email_notification") as notification_mock:
-        result = task.execute(context={
-            "execution_date" : datetime.now()
-        })
+    mock_patch = patch.object(
+        DataQualityThresholdSQLCheckOperator,
+        "send_failure_notification",
+        side_effect=lambda info_dict: info_dict)
 
+    with mock_patch as notif_mock:
+        result = task.execute(task_instance.get_template_context())
+
+    assert notif_mock.called
     assert len(result) == 7
-    assert not notification_mock.called
     assert not result["within_threshold"]

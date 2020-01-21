@@ -1,12 +1,12 @@
 import logging
 
-from airflow.utils.email import send_email
 from airflow.utils.decorators import apply_defaults
 from airflow.models import BaseOperator
 from airflow.hooks.base_hook import BaseHook
 from airflow.hooks.postgres_hook import PostgresHook
 from airflow.hooks.mysql_hook import MySqlHook
 from airflow.hooks.hive_hooks import HiveServer2Hook
+from airflow import AirflowException
 
 class BaseDataQualityOperator(BaseOperator):
     """
@@ -54,19 +54,15 @@ class BaseDataQualityOperator(BaseOperator):
         """Send data check info and metadata to an external database."""
         pass
 
-    def send_email_notification(self, info_dict):
-        body = f"""<h1>Data Quality Check: "{info_dict.get("task_id")}" failed.</h1><br>
-<b>DAG:</b> {self.dag_id}<br>
-<b>Task_id:</b> {info_dict.get("task_id")}<br>
-<b>Check description:</b> {info_dict.get("description")}<br>
-<b>Execution date:</b> {info_dict.get("execution_date")}<br>
-<b>SQL:</b> {self.sql}<br>
-<b>Result:</b> {round(info_dict.get("result"), 2)} is not within thresholds {info_dict.get("min_threshold")} and {info_dict.get("max_threshold")}"""
-        send_email(
-            to=self.notification_emails,
-            subject=f"""Data Quality Check: "{info_dict.get("task_id")}" failed""",
-            html_content=body
-        )
+    def send_failure_notification(self, info_dict):
+        body = f"""Data Quality Check: "{info_dict.get("task_id")}" failed.
+DAG: {self.dag_id}
+Task_id: {info_dict.get("task_id")}
+Check description: {info_dict.get("description")}
+Execution date: {info_dict.get("execution_date")}
+SQL: {self.sql}
+Result: {round(info_dict.get("result"), 2)} is not within thresholds {info_dict.get("min_threshold")} and {info_dict.get("max_threshold")}"""
+        raise AirflowException(body)
 
 def _get_hook(conn_id):
     """

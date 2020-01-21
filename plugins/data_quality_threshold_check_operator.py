@@ -32,16 +32,14 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
             "task_id" : self.task_id,
             "execution_date" : context.get("execution_date"),
             "min_threshold" : self.min_threshold,
-            "max_threshold" : self.max_threshold
+            "max_threshold" : self.max_threshold,
+            "within_threshold" : self.min_threshold <= result <= self.max_threshold
         }
 
-        if self.min_threshold <= result <= self.max_threshold:
-            info_dict["within_threshold"] = True
-        else:
-            info_dict["within_threshold"] = False
-            if self.notification_emails:
-                self.send_email_notification(info_dict)
         self.push(info_dict)
+        if not info_dict["within_threshold"]:
+            context["ti"].xcom_push(key=f"""result data from task {self.task_id}""", value=info_dict)
+            self.send_failure_notification(info_dict)
         return info_dict
 
 class DataQualityThresholdCheckPlugin(AirflowPlugin):

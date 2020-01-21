@@ -8,14 +8,16 @@ from airflow import DAG
 from airflow.operators.data_quality_threshold_check_operator import DataQualityThresholdCheckOperator
 from airflow.operators.data_quality_threshold_sql_check_operator import DataQualityThresholdSQLCheckOperator
 from airflow.operators.dummy_operator import DummyOperator
+from airflow.utils.trigger_rule import TriggerRule
 
 YAML_DIR = "./tests/configs/yaml_configs"
 
 default_args = {
     "owner" : "airflow",
     "start_date" : datetime(2020,1,16),
-    "retries" : 1,
-    "retry_delay" : timedelta(minutes=5)
+    "retries" : 0,
+    "retry_delay" : timedelta(minutes=5),
+    "email_on_failure" : True
 }
 
 dag = DAG(
@@ -37,7 +39,7 @@ def get_data_quality_operator(conf, dag):
         "sql" : conf["fields"]["sql"],
         "push_conn_id" : conf["push_conn_id"],
         "check_description" : conf["check_description"],
-        "notification_emails" : conf["notification_emails"]
+        "email" : conf["notification_emails"]
     }
 
     if conf["threshold"]["min_threshold_sql"]:
@@ -70,6 +72,7 @@ task_before_dq = DummyOperator(
 
 task_after_dq = DummyOperator(
     task_id="task_after_data_quality_checks",
+    trigger_rule=TriggerRule.ALL_DONE,
     dag=dag
 )
 
