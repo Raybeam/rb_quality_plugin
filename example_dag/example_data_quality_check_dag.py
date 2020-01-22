@@ -27,6 +27,11 @@ dag = DAG(
 )
 
 def recursive_make_defaultdict(conf):
+    """
+    recursive_make_defaultdict takes in a configuration dictionary
+    and recursively converts all nested dictionaries into a defaultdict
+    data structure with a default value as None.
+    """
     if isinstance(conf, dict):
         for key in conf.keys():
             conf[key] = recursive_make_defaultdict(conf[key])

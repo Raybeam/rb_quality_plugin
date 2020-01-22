@@ -51,6 +51,10 @@ class BaseDataQualityOperator(BaseOperator):
         pass
 
     def send_failure_notification(self, info_dict):
+        """
+        send_failure_notification will throw an AirflowException with logging 
+        information and dq check results from the failed task that was just run.
+        """
         body = f"""Data Quality Check: "{info_dict.get("task_id")}" failed.
 DAG: {self.dag_id}
 Task_id: {info_dict.get("task_id")}
