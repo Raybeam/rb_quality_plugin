@@ -6,7 +6,7 @@
 3. Run the tests using `pytest path/to/test/file/directory`.
 
 
-## BaseDataQualityOperator
+## BaseDataQualityOperator Tests
 `test_base_data_quality_operator.py` includes tests for:
 - `get_sql_value()` method
     1. Test to ensure one result returns
@@ -14,12 +14,18 @@
     3. Test to ensure exception is raised if multiple columns return
     4. Test to ensure exception is raised if invalid connection type is given
 
-## DataQualityThresholdCheckOperator
+## DataQualityThresholdCheckOperator Tests
 `test_data_quality_threshold_check_operator.py` includes tests for:
 - Test result of dq check is within threshold values
 - Test result of dq check is outside threshold values
 
-## DataQualityThresholdSQLCheckOperator
+## DataQualityThresholdSQLCheckOperator Tests
 `test_data_quality_threshold_sql_check_operator.py` includes tests for:
 - Test result of dq check is within evaluated min/max thresholds
 - Test result of dq check is outside evaluated min/max thresholds
+
+## YAML & Email Tests
+`test_yaml_config.py` performs test cases for YAML configuration files. Tests include:
+- YAML configurations for both DataQualityThresholdCheckOperator and DataQualityThresholdSQLCheckOperator
+- Checks if `send_email_notification()` is called when a test fails and emails are provided in the operator 
+- Checks if `send_email_notification()` is not called when emails are not provided, regardless of whether the test fail or pass.

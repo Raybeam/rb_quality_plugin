@@ -2,9 +2,11 @@ import logging
 
 from airflow.utils.decorators import apply_defaults
 from airflow.models import BaseOperator
+from airflow.hooks.base_hook import BaseHook
 from airflow.hooks.postgres_hook import PostgresHook
 from airflow.hooks.mysql_hook import MySqlHook
 from airflow.hooks.hive_hooks import HiveServer2Hook
+from airflow import AirflowException
 
 class BaseDataQualityOperator(BaseOperator):
     """
@@ -28,9 +30,7 @@ class BaseDataQualityOperator(BaseOperator):
     @apply_defaults
     def __init__(self,
                  sql,
-                 conn_type,
                  conn_id,
-                 push_conn_type=None,
                  push_conn_id=None,
                  check_description=None,
                  *args,
@@ -38,37 +38,40 @@ class BaseDataQualityOperator(BaseOperator):
                  ):
         super().__init__(*args, **kwargs)
         self.conn_id = conn_id
-        self.conn_type = conn_type
         self.push_conn_id = push_conn_id
-        self.push_conn_type = push_conn_type
         self.sql = sql
         self.check_description = check_description
 
-    @property
-    def conn_type(self):
-        return self._conn_type
-
-    @conn_type.setter
-    def conn_type(self, conn):
-        conn_types = {'postgres', 'mysql', 'hive'}
-        if conn not in conn_types:
-            raise ValueError(f"""Connection type of "{conn}" not currently supported""")
-        self._conn_type = conn
-    
     def execute(self, context):
         """Method where data quality check is performed """
         raise NotImplementedError
-    
+
     def push(self, info_dict):
         """Send data check info and metadata to an external database."""
-        raise NotImplementedError()
+        pass
 
-def _get_hook(conn_type, conn_id):
+    def send_failure_notification(self, info_dict):
+        """
+        send_failure_notification will throw an AirflowException with logging 
+        information and dq check results from the failed task that was just run.
+        """
+        body = f"""Data Quality Check: "{info_dict.get("task_id")}" failed.
+DAG: {self.dag_id}
+Task_id: {info_dict.get("task_id")}
+Check description: {info_dict.get("description")}
+Execution date: {info_dict.get("execution_date")}
+SQL: {self.sql}
+Result: {round(info_dict.get("result"), 2)} is not within thresholds {info_dict.get("min_threshold")} and {info_dict.get("max_threshold")}"""
+        raise AirflowException(body)
+
+def _get_hook(conn_id):
     """
     _get_hook is a helper function for get_sql_value. Returns a database
     hook depending on the conn_type and conn_id specified. Method will raise
     an exception if hook is not supported.
     """
+
+    conn_type = BaseHook.get_connection(conn_id).conn_type
     if conn_type == "postgres":
         return PostgresHook(postgres_conn_id=conn_id)
     if conn_type == "mysql":
@@ -78,12 +81,12 @@ def _get_hook(conn_type, conn_id):
     else:
         raise ValueError(f"""Connection type of "{conn_type}" not currently supported""")
 
-def get_sql_value(conn_type, conn_id, sql):
+def get_sql_value(conn_id, sql):
     """
     get_sql_value executes a sql query given proper connection parameters.
     The result of the sql query should be one and only one numeric value.
     """
-    hook = _get_hook(conn_type, conn_id)
+    hook = _get_hook(conn_id)
     result = hook.get_records(sql)
     if len(result) > 1:
         logging.info("Result: %s contains more than 1 entry", str(result))

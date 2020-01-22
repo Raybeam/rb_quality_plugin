@@ -1,0 +1,11 @@
+test_name: test_inside_threshold_values
+check_description: >
+  test to check proper functionality when data quality
+  check is inside of threshold.
+threshold:
+    min_threshold: 10
+    max_threshold: 15
+fields:
+  conn_id: test_conn
+  conn_type: postgres
+  sql: SELECT MIN(value) FROM test;
