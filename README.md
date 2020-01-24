@@ -26,7 +26,7 @@ This Airflow module contains the following operators:
 In this operator, the data quality check executes using `get_sql_value()`. Thresholds are given as numeric values and the test will determine if the data quality result is within that range. If configured, `push()` will then be called to send metadata and test results to an external datastore. If the result is within the threshold range, the task passes and the metadata is returned. Otherwise if the result is outside the thresholds, `send_failure_notification()` is called to log the failed test and email users if necessary.
 
 #### Usage
-The example of this operator looks like this:
+An example of this operator looks like this:
 ```python
 task = DataQualityThresholdCheckOperator(
     task_id="task_check_average_value",
@@ -52,7 +52,7 @@ The parameters used are:
 The operator will collect the sql statement for the min and max threshold and before performing the data quality check, it will evaluate these sql statements using `get_sql_value()`. After collecting these threshold values, the operator will evaluate the data quality test and check against the thresholds and determine if the result lies outside or inside the threshold. If the result is within the threshold range, the task passes and the metadata is returned. Otherwise if the result is outside the thresholds, `send_failure_notification()` is called to log the failed test and email users if necessary.
 
 #### Usage
-The example of this operator looks like this:
+An example of this operator looks like this:
 ```python
 task = DataQualityThresholdCheckOperator(
     task_id="task_check_average_value",
@@ -76,7 +76,7 @@ The parameters used are:
 
 
 ### YAML Usage and other examples
-Example DAG usages are also provided in this package located in the [`example_dag`](exapmple_dag/) directory. This directory includes usages of both types of Threshold Check Operators. There will also be a DAG-level implementation of how YAML files could be used as test configurations for each operator.
+Example DAG usages are also provided in this package located in the [`example_dag/`](example_dag/) directory. This directory includes usages of both types of Threshold Check Operators. There will also be a DAG-level implementation of how YAML files could be used as test configurations for each operator.
 
 ## Tests
 Tests can be found [here](tests). Test directory gives an outline of each test file and the purpose of each. Additionally, it contains test configurations such as a sql script that creates test tables and configuration YAML files.
