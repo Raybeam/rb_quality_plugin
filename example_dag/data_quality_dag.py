@@ -46,7 +46,7 @@ task_check_average = DataQualityThresholdCheckOperator(
 )
 
 """Task to check avg against high & low of Sales table (test fails)"""
-task_check_from_from_last_month = DataQualityThresholdSQLCheckOperator(
+task_check_from_last_month = DataQualityThresholdSQLCheckOperator(
     task_id="task_check_from_from_last_month",
     sql="SELECT AVG(cost) FROM Costs;",
     conn_id="test_conn",
@@ -58,7 +58,7 @@ task_check_from_from_last_month = DataQualityThresholdSQLCheckOperator(
     dag=dag
 )
 
-data_quality_checks = [task_check_average, task_check_from_from_last_month]
+data_quality_checks = [task_check_average, task_check_from_last_month]
 
 task_after_dq = DummyOperator(
     task_id="task_after_data_quality_checks",
