@@ -33,7 +33,7 @@ task_before_dq = DummyOperator(
     dag=dag
 )
 
-"""Task to check total revenue is between [40, 50] (test passes)"""
+"""Task to check total revenue is between [30, 60] (test passes)"""
 task_check_total_revenue = DataQualityThresholdCheckOperator(
     task_id="task_check_average_value",
     sql="dq_file_load_sql_tests/data_quality_total_rev.sql",
@@ -41,7 +41,7 @@ task_check_total_revenue = DataQualityThresholdCheckOperator(
     min_threshold=30,
     max_threshold=60,
     push_conn_id="push_conn",
-    check_description="test to determine whether the amount in Revenue table is between 40 and 80",
+    check_description="test to determine whether the amount in Revenue table is between 30 and 60",
     dag=dag
 )
 
