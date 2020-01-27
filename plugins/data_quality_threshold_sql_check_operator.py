@@ -20,6 +20,9 @@ class DataQualityThresholdSQLCheckOperator(BaseDataQualityOperator):
     :type threshold_conn_id: str
     """
 
+    template_fields = ('sql','min_threshold_sql', 'max_threshold_sql')
+    template_ext = ('.sql',)
+
     @apply_defaults
     def __init__(self,
                  min_threshold_sql,

@@ -27,6 +27,9 @@ class BaseDataQualityOperator(BaseOperator):
     :type check_description: str
     """
 
+    template_fields = ('sql',)
+    template_ext = ('.sql',)
+
     @apply_defaults
     def __init__(self,
                  sql,
