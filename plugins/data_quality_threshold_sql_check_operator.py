@@ -10,9 +10,9 @@ class DataQualityThresholdSQLCheckOperator(BaseDataQualityOperator):
     statements from a defined source, evaluate the data quality check, and then compare
     that result to the min and max thresholds calculated.
 
-    :param min_threshold_sql: lower bound sql statement
+    :param min_threshold_sql: lower bound sql statement (or path to sql statement)
     :type min_threshold_sql: str
-    :param max_threshold_sql: upper bound sql statement
+    :param max_threshold_sql: upper bound sql statement (or path to sql statement)
     :type max_threshold_sql: str
     :param threshold_conn_type: connection type of threshold sql statement table
     :type threshold_conn_type: str

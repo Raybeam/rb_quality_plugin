@@ -76,7 +76,7 @@ The parameters used are:
 
 
 ### YAML Usage and other examples
-Example DAG usages are also provided in this package located in the [`example_dag/`](example_dags/) directory. This directory includes usages of both types of Threshold Check Operators. There will also be a DAG-level implementation of how YAML files could be used as test configurations for each operator.
+Example DAG usages are also provided in this package located in the [`example_dags/`](example_dags/) directory. This directory includes usages of both types of Threshold Check Operators. There will also be a DAG-level implementation of how YAML files could be used as test configurations for each operator.
 
 ## Tests
 Tests can be found [here](tests/). Test directory gives an outline of each test file and the purpose of each. Additionally, it contains test configurations such as a sql script that creates test tables and configuration YAML files.

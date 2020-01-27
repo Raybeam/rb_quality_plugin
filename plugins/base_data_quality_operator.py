@@ -13,7 +13,7 @@ class BaseDataQualityOperator(BaseOperator):
     BaseDataQualityOperator is an abstract base operator class to
     perform data quality checks
 
-    :param sql: sql code to be executed
+    :param sql: sql (or path to sql) code to be executed
     :type sql: str
     :param conn_type: database type
     :type conn_type: str
