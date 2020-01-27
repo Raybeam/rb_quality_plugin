@@ -21,7 +21,7 @@ default_args = {
 }
 
 dag = DAG(
-    "data_quality_check_dag",
+    "yaml_data_quality_check_dag",
     default_args=default_args,
     schedule_interval="@daily"
 )
