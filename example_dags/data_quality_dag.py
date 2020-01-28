@@ -51,8 +51,8 @@ task_check_from_last_month = DataQualityThresholdSQLCheckOperator(
     sql="SELECT AVG(cost) FROM Costs;",
     conn_id="test_conn",
     threshold_conn_id="test_id",
-    min_threshold_sql="SELECT MIN(sale_price) FROM Sales WHERE date>=(NOW() - INTERVAL '1 month');",
-    max_threshold_sql="SELECT MAX(sale_price) FROM Sales WHERE date>=(NOW() - INTERVAL '1 month');",
+    min_threshold_sql="SELECT MIN(sale_price) FROM Sales WHERE date>=(DATE('{{ ds }}') - INTERVAL '1 month');",
+    max_threshold_sql="SELECT MAX(sale_price) FROM Sales WHERE date>=(DATE('{{ ds }}') - INTERVAL '1 month');",
     push_conn_id="push_conn",
     check_description="test to of whether the average of Price table of last month is between low and high of Sales table from the last month",
     dag=dag
