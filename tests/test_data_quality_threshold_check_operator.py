@@ -36,10 +36,6 @@ def test_inside_threshold_values(mocker):
     task_instance = TaskInstance(task=task, execution_date=datetime.now())
     result = task.execute(task_instance.get_template_context())
 
-    result = task.execute(context={
-        "execution_date": datetime.now(),
-    })
-
     assert len(result) == 7
     assert result["within_threshold"]
 

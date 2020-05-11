@@ -50,7 +50,7 @@ def test_get_sql_value_not_one_result(mocker):
     mocker.patch.object(
         BaseHook,
         "get_connection",
-        return_value=Connection(conn_id='test_id',conn_type='hive')
+        return_value=Connection(conn_id='test_id',conn_type='hiveserver2')
     )
 
     task = BaseDataQualityOperator(
