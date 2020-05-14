@@ -1,15 +1,10 @@
-test_name: test_inside_threshold_sql
-check_description: >
+type: dq_check_sql_threshold
+task_id: test_inside_threshold_sql
+check_description: >-
   test to check proper functionality when data quality
   check is inside of threshold.
-threshold:
-    min_threshold_sql: SELECT MIN(cost) FROM price;
-    max_threshold_sql: SELECT MAX(cost) FROM price;
-    threshold_conn_type: postgres
-    threshold_conn_id: test_id
-fields:
-  conn_id: test_conn
-  conn_type: postgres
-  sql: SELECT MIN(value) FROM test;
-notification_emails:
-  - test_email_user@testemail.com
+min_threshold_sql: SELECT MIN(cost) FROM price;
+max_threshold_sql: SELECT MAX(cost) FROM price;
+threshold_conn_id: test_id
+conn_id: test_conn
+sql: SELECT MIN(value) FROM test;

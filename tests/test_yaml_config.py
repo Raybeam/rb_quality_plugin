@@ -1,7 +1,6 @@
-from pathlib import Path
+import os
 from datetime import datetime
 from unittest.mock import Mock, patch
-from collections import defaultdict
 
 from airflow.operators.data_quality_threshold_check_operator import DataQualityThresholdCheckOperator
 from airflow.operators.data_quality_threshold_sql_check_operator import DataQualityThresholdSQLCheckOperator
@@ -12,43 +11,10 @@ from airflow.models import Connection, TaskInstance
 import yaml
 from .helper import get_records_mock, dummy_dag
 
-YAML_PATH = Path(__file__).parents[0] / "configs" / "yaml_configs"
-
-def recursive_make_defaultdict(conf):
-    if isinstance(conf, dict):
-        for key in conf.keys():
-            conf[key] = recursive_make_defaultdict(conf[key])
-        return defaultdict(lambda: None, conf)
-    return conf
-
-def get_data_quality_operator(conf):
-    kwargs = {
-        "conn_id" : conf["fields"]["conn_id"],
-        "sql" : conf["fields"]["sql"],
-        "push_conn_id" : conf["push_conn_id"],
-        "check_description" : conf["check_description"],
-        "email" : conf["notification_emails"]
-    }
-
-    if conf["threshold"]["min_threshold_sql"]:
-        task = DataQualityThresholdSQLCheckOperator(
-            task_id=conf["test_name"],
-            min_threshold_sql=conf["threshold"]["min_threshold_sql"],
-            max_threshold_sql=conf["threshold"]["max_threshold_sql"],
-            threshold_conn_id=conf["threshold"]["threshold_conn_id"],
-            dag=dummy_dag,
-            **kwargs)
-    else:
-        task = DataQualityThresholdCheckOperator(
-            task_id=conf["test_name"],
-            min_threshold=conf["threshold"]["min_threshold"],
-            max_threshold=conf["threshold"]["max_threshold"],
-            dag=dummy_dag,
-            **kwargs)
-    return task
+YAML_PATH = "./tests/configs/yaml_configs"
 
 def test_inside_threshold_values(mocker):
-    yaml_path = YAML_PATH / "test_inside_threshold_values.yaml"
+    yaml_path = os.path.join(YAML_PATH, "test_inside_threshold_values.yaml")
 
     mocker.patch.object(
         PostgresHook,
@@ -62,11 +28,11 @@ def test_inside_threshold_values(mocker):
         return_value=Connection(conn_id='test_id', conn_type='postgres')
     )
 
-    with open(yaml_path) as config:
-        conf = recursive_make_defaultdict(yaml.safe_load(config))
-    task = get_data_quality_operator(conf)
-
-    assert isinstance(task, DataQualityThresholdCheckOperator)
+    task = DataQualityThresholdCheckOperator(
+        task_id='test_inside_threshold_values',
+        config_path=yaml_path,
+        dag=dummy_dag
+    )
 
     task.push = Mock(return_value=None)
     task_instance = TaskInstance(task=task, execution_date=datetime.now())
@@ -76,7 +42,7 @@ def test_inside_threshold_values(mocker):
     assert result["within_threshold"]
 
 def test_inside_threshold_sql(mocker):
-    yaml_path = YAML_PATH / "test_inside_threshold_sql.yaml"
+    yaml_path = os.path.join(YAML_PATH, "test_inside_threshold_sql.yaml")
 
     mocker.patch.object(
         PostgresHook,
@@ -90,11 +56,11 @@ def test_inside_threshold_sql(mocker):
         return_value=Connection(conn_id='test_id', conn_type='postgres')
     )
 
-    with open(yaml_path) as config:
-        conf = recursive_make_defaultdict(yaml.safe_load(config))
-    task = get_data_quality_operator(conf)
-
-    assert isinstance(task, DataQualityThresholdSQLCheckOperator)
+    task = DataQualityThresholdSQLCheckOperator(
+        task_id='test_inside_threshold_sql',
+        config_path=yaml_path,
+        dag=dummy_dag
+    )
 
     task.push = Mock(return_value=None)
     task_instance = TaskInstance(task=task, execution_date=datetime.now())
@@ -104,7 +70,7 @@ def test_inside_threshold_sql(mocker):
     assert result["within_threshold"]
 
 def test_outside_threshold_values(mocker):
-    yaml_path = YAML_PATH / "test_outside_threshold_values.yaml"
+    yaml_path = os.path.join(YAML_PATH, "test_outside_threshold_values.yaml")
 
     mocker.patch.object(
         PostgresHook,
@@ -118,11 +84,11 @@ def test_outside_threshold_values(mocker):
         return_value=Connection(conn_id='test_id', conn_type='postgres')
     )
 
-    with open(yaml_path) as config:
-        conf = recursive_make_defaultdict(yaml.safe_load(config))
-    task = get_data_quality_operator(conf)
-
-    assert isinstance(task, DataQualityThresholdCheckOperator)
+    task = DataQualityThresholdCheckOperator(
+        task_id='test_outside_threshold_values',
+        config_path=yaml_path,
+        dag=dummy_dag
+    )
 
     task.push = Mock(return_value=None)
     task_instance = TaskInstance(task=task, execution_date=datetime.now())
@@ -140,7 +106,7 @@ def test_outside_threshold_values(mocker):
     assert not result["within_threshold"]
 
 def test_outside_threshold_sql(mocker):
-    yaml_path = YAML_PATH / "test_outside_threshold_sql.yaml"
+    yaml_path = os.path.join(YAML_PATH, "test_outside_threshold_sql.yaml")
 
     mocker.patch.object(
         PostgresHook,
@@ -154,11 +120,11 @@ def test_outside_threshold_sql(mocker):
         return_value=Connection(conn_id='test_id', conn_type='postgres')
     )
 
-    with open(yaml_path) as config:
-        conf = recursive_make_defaultdict(yaml.safe_load(config))
-    task = get_data_quality_operator(conf)
-
-    assert isinstance(task, DataQualityThresholdSQLCheckOperator)
+    task = DataQualityThresholdSQLCheckOperator(
+        task_id='test_outside_threshold_sql',
+        config_path=yaml_path,
+        dag=dummy_dag
+    )
 
     task.push = Mock(return_value=None)
     task_instance = TaskInstance(task=task, execution_date=datetime.now())
