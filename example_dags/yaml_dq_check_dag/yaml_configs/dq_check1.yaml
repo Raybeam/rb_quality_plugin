@@ -1,0 +1,18 @@
+type: dq_check_sql_threshold
+task_id: dq_check1
+check_description: >-
+  test between 20% of low and high of table in the last month
+  (test fails)
+min_threshold_sql: >-
+  SELECT 0.8*MIN(value)
+  FROM ret
+  WHERE date>=(DATE('{start_date}') - INTERVAL '1 month');
+max_threshold_sql: >-
+  SELECT 1.2*MAX(value)
+  FROM ret
+  WHERE date>=(DATE('{start_date}') - INTERVAL '1 month');
+threshold_conn_id: test_id
+conn_id: test_id
+sql: >-
+  SELECT SUM(amount)
+  FROM rev;

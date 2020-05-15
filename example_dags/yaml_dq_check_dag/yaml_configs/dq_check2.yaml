@@ -1,0 +1,9 @@
+type: dq_check_value_threshold
+task_id: dq_check2
+check_description: >-
+  test to check proper functionality when data quality
+  check is outside of threshold. (tast passes)
+min_threshold: 2
+max_threshold: 150
+conn_id: test_conn
+sql: SELECT avg(cost) FROM price;

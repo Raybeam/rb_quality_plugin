@@ -1,85 +1,50 @@
 from datetime import datetime, timedelta
-from collections import defaultdict
-import os
-import glob
-import yaml
 
+import airflow
 from airflow import DAG
-from airflow.operators.data_quality_threshold_check_operator import DataQualityThresholdCheckOperator
-from airflow.operators.data_quality_threshold_sql_check_operator import DataQualityThresholdSQLCheckOperator
 from airflow.operators.dummy_operator import DummyOperator
-from airflow.utils.trigger_rule import TriggerRule
+from airflow.operators.postgres_operator import PostgresOperator
 
-YAML_DIR = "./tests/configs/yaml_configs"
+from utilities.dq_check_tools import create_dq_checks_from_directory, create_dq_checks_from_list
 
 default_args = {
     "owner" : "airflow",
-    "start_date" : datetime(2020,1,16),
+    "start_date" : airflow.utils.dates.days_ago(1),
     "retries" : 0,
     "retry_delay" : timedelta(minutes=5),
     "email_on_failure" : True
 }
 
+YAML_DIR = "./tests/configs/yaml_configs"
+
+YAML_LIST = [
+    ('./example_dags/yaml_dq_check_dag/yaml_configs/dq_check1.yaml', {'start_date': default_args['start_date']}),
+    ('./example_dags/yaml_dq_check_dag/yaml_configs/dq_check2.yaml', {})
+]
+
 dag = DAG(
     "yaml_data_quality_check_dag",
     default_args=default_args,
-    schedule_interval="@daily"
+    schedule_interval=None
 )
 
-def recursive_make_defaultdict(conf):
-    """
-    recursive_make_defaultdict takes in a configuration dictionary
-    and recursively converts all nested dictionaries into a defaultdict
-    data structure with a default value as None.
-    """
-    if isinstance(conf, dict):
-        for key in conf.keys():
-            conf[key] = recursive_make_defaultdict(conf[key])
-        return defaultdict(lambda: None, conf)
-    return conf
+dq_check_tasks = create_dq_checks_from_directory(dag, YAML_DIR) + create_dq_checks_from_list(dag, YAML_LIST)
 
-def get_data_quality_operator(conf, dag):
-    kwargs = {
-        "conn_id" : conf["fields"]["conn_id"],
-        "sql" : conf["fields"]["sql"],
-        "push_conn_id" : conf["push_conn_id"],
-        "check_description" : conf["check_description"],
-        "email" : conf["notification_emails"]
-    }
-
-    if conf["threshold"]["min_threshold_sql"]:
-        task = DataQualityThresholdSQLCheckOperator(
-            task_id=conf["test_name"],
-            min_threshold_sql=conf["threshold"]["min_threshold_sql"],
-            max_threshold_sql=conf["threshold"]["max_threshold_sql"],
-            threshold_conn_id=conf["threshold"]["threshold_conn_id"],
-            dag=dag,
-            **kwargs)
-    else:
-        task = DataQualityThresholdCheckOperator(
-            task_id=conf["test_name"],
-            min_threshold=conf["threshold"]["min_threshold"],
-            max_threshold=conf["threshold"]["max_threshold"],
-            dag=dag,
-            **kwargs)
-    return task
-
-data_quality_check_tasks = []
-for test_conf in glob.glob(os.path.join(str(YAML_DIR), "*.yaml")):
-    with open(test_conf) as config:
-        conf = recursive_make_defaultdict(yaml.safe_load(config))
-    data_quality_check_tasks.append(get_data_quality_operator(conf, dag))
-
-task_before_dq = DummyOperator(
-    task_id="task_before_data_quality_checks",
+start = DummyOperator(
+    task_id="start",
     dag=dag
 )
 
-task_after_dq = DummyOperator(
-    task_id="task_after_data_quality_checks",
-    trigger_rule=TriggerRule.ALL_DONE,
+load_data = PostgresOperator(
+    task_id="load_test_data",
+    sql="./yaml_dq_check_dag/load_test_data.sql",
+    postgres_conn_id="test_conn",
     dag=dag
 )
 
-task_before_dq.set_downstream(data_quality_check_tasks)
-task_after_dq.set_upstream(data_quality_check_tasks)
+end = DummyOperator(
+    task_id="end",
+    dag=dag
+)
+
+start >> load_data >> dq_check_tasks >> end
