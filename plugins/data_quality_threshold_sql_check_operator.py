@@ -92,7 +92,7 @@ class DataQualityThresholdSQLCheckOperator(BaseDataQualityOperator):
             "result": result,
             "description": self.check_description,
             "task_id": self.task_id,
-            "execution_date": context.get("execution_date"),
+            "execution_date": str(context.get("execution_date")),
             "min_threshold": min_threshold,
             "max_threshold": max_threshold,
             "within_threshold": within_threshold

@@ -73,7 +73,7 @@ class BaseDataQualityOperator(BaseOperator):
         """.format(
             task_id=self.task_id, dag_id=self.dag_id,
             description=info_dict.get("description"), sql=self.sql,
-            execution_date=info_dict.get("execution_date"),
+            execution_date=str(info_dict.get("execution_date")),
             result=round(info_dict.get("result"), 2),
             min_threshold=info_dict.get("min_threshold"),
             max_threshold=info_dict.get("max_threshold")
