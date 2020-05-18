@@ -3,6 +3,7 @@ import logging
 from airflow import AirflowException
 from airflow.hooks.base_hook import BaseHook
 from airflow.models import BaseOperator
+from airflow.contrib.hooks.bigquery_hook import BigQueryHook
 from airflow.utils.decorators import apply_defaults
 
 log = logging.getLogger(__name__)
@@ -82,26 +83,25 @@ class BaseDataQualityOperator(BaseOperator):
         )
         raise AirflowException(body)
 
+    def get_sql_value(self, conn_id, sql):
+        """
+        get_sql_value executes a sql query given proper connection parameters.
+        The result of the sql query should be one and only one numeric value.
+        """
 
-def get_sql_value(self, conn_id, sql):
-    """
-    get_sql_value executes a sql query given proper connection parameters.
-    The result of the sql query should be one and only one numeric value.
-    """
-
-    conn = BaseHook.get_connection(conn_id)
-    if conn.conn_type == 'google_cloud_platform':
-        hook = BigQueryHook(conn_id, use_legacy_sql=self.use_legacy_sql)
-    else:
-        hook = BaseHook.get_hook(conn_id)
-    result = hook.get_records(sql)
-    if len(result) > 1:
-        logging.info("Result: %s contains more than 1 entry", str(result))
-        raise ValueError("Result from sql query contains more than 1 entry")
-    elif len(result) < 1:
-        raise ValueError("No result returned from sql query")
-    elif len(result[0]) != 1:
-        logging.info("Result: %s does not contain exactly 1 column", str(result[0]))
-        raise ValueError("Result from sql query does not contain exactly 1 column")
-    else:
-        return result[0][0]
+        conn = BaseHook.get_connection(conn_id)
+        if conn.conn_type == 'google_cloud_platform':
+            hook = BigQueryHook(conn_id, use_legacy_sql=self.use_legacy_sql)
+        else:
+            hook = BaseHook.get_hook(conn_id)
+        result = hook.get_records(sql)
+        if len(result) > 1:
+            logging.info("Result: %s contains more than 1 entry", str(result))
+            raise ValueError("Result from sql query contains more than 1 entry")
+        elif len(result) < 1:
+            raise ValueError("No result returned from sql query")
+        elif len(result[0]) != 1:
+            logging.info("Result: %s does not contain exactly 1 column", str(result[0]))
+            raise ValueError("Result from sql query does not contain exactly 1 column")
+        else:
+            return result[0][0]
