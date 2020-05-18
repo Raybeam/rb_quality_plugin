@@ -36,6 +36,7 @@ class BaseDataQualityOperator(BaseOperator):
                  conn_id,
                  push_conn_id=None,
                  check_description=None,
+                 use_legacy_sql=True,
                  *args,
                  **kwargs
                  ):
@@ -44,6 +45,7 @@ class BaseDataQualityOperator(BaseOperator):
         self.push_conn_id = push_conn_id
         self.sql = sql
         self.check_description = check_description
+        self.use_legacy_sql = use_legacy_sql
 
     def execute(self, context):
         """Method where data quality check is performed """
@@ -81,13 +83,17 @@ class BaseDataQualityOperator(BaseOperator):
         raise AirflowException(body)
 
 
-def get_sql_value(conn_id, sql):
+def get_sql_value(self, conn_id, sql):
     """
     get_sql_value executes a sql query given proper connection parameters.
     The result of the sql query should be one and only one numeric value.
     """
 
-    hook = BaseHook.get_hook(conn_id=conn_id)
+    conn = BaseHook.get_connection(conn_id)
+    if conn.conn_type == 'google_cloud_platform':
+        hook = BigQueryHook(conn_id, use_legacy_sql=self.use_legacy_sql)
+    else:
+        hook = BaseHook.get_hook(conn_id)
     result = hook.get_records(sql)
     if len(result) > 1:
         logging.info("Result: %s contains more than 1 entry", str(result))
