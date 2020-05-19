@@ -37,7 +37,7 @@ class BaseDataQualityOperator(BaseOperator):
                  conn_id,
                  push_conn_id=None,
                  check_description=None,
-                 use_legacy_sql=True,
+                 use_legacy_sql=False,
                  *args,
                  **kwargs
                  ):
