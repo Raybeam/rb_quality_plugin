@@ -11,7 +11,7 @@ from airflow.hooks.mysql_hook import MySqlHook
 from airflow.hooks.hive_hooks import HiveServer2Hook
 from airflow.models import Connection
 
-from plugins.base_data_quality_operator import BaseDataQualityOperator, get_sql_value
+from plugins.base_data_quality_operator import BaseDataQualityOperator
 
 
 def test_get_sql_value_one_result(mocker):
@@ -33,7 +33,7 @@ def test_get_sql_value_one_result(mocker):
         sql='SELECT COUNT(1) FROM test;'
     )
 
-    result = get_sql_value(
+    result = task.get_sql_value(
         conn_id=task.conn_id,
         sql=task.sql
     )
@@ -60,7 +60,7 @@ def test_get_sql_value_not_one_result(mocker):
     )
 
     with pytest.raises(ValueError):
-        get_sql_value(
+        task.get_sql_value(
             conn_id=task.conn_id,
             sql=task.sql
         )
@@ -85,7 +85,7 @@ def test_get_sql_value_no_result(mocker):
     )
 
     with pytest.raises(ValueError):
-        get_sql_value(
+        task.get_sql_value(
             conn_id=task.conn_id,
             sql=task.sql
         )
@@ -110,7 +110,7 @@ def test_get_sql_value_multiple_results(mocker):
     )
 
     with pytest.raises(ValueError):
-        get_sql_value(
+        task.get_sql_value(
             conn_id=task.conn_id,
             sql=task.sql
         )
