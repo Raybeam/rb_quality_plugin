@@ -25,6 +25,8 @@ This Airflow module contains the following operators:
 
 In this operator, the data quality check executes using `get_sql_value()`. Thresholds are given as numeric values and the test will determine if the data quality result is within that range. If configured, `push()` will then be called to send metadata and test results to an external datastore. If the result is within the threshold range, the task passes and the metadata is returned. Otherwise if the result is outside the thresholds, `send_failure_notification()` is called to log the failed test and email users if necessary.
 
+`DataQualityThresholdCheckOperator` also has the functionality for single threshold boundaries. For example, a test can be created to check whether the result of a dq check is larger than the `min_threshold` or smaller than the `max_threshold`.
+
 #### Usage
 An example of this operator looks like this:
 ```python
@@ -51,6 +53,8 @@ The parameters used are:
 
 The operator will collect the sql statement for the min and max threshold and before performing the data quality check, it will evaluate these sql statements using `get_sql_value()`. After collecting these threshold values, the operator will evaluate the data quality test and check against the thresholds and determine if the result lies outside or inside the threshold. If the result is within the threshold range, the task passes and the metadata is returned. Otherwise if the result is outside the thresholds, `send_failure_notification()` is called to log the failed test and email users if necessary.
 
+Similarly, `DataQualityThresholdSQLCheckOperator` also has the functionality for single threshold boundaries. For example, a test can be created to check whether the result of a dq check is larger than the `min_threshold_sql` or smaller than the `max_threshold_sql`.
+
 #### Usage
 An example of this operator looks like this:
 ```python
@@ -75,8 +79,15 @@ The parameters used are:
 - `check_description` - (optional) description text of the test being run
 
 
-### YAML Usage and other examples
-Example DAG usages are also provided in this package located in the [`example_dags/`](example_dags/) directory. This directory includes usages of both types of Threshold Check Operators. There will also be a DAG-level implementation of how YAML files could be used as test configurations for each operator.
+### YAML Usage 
+Both operators have the capability to read in YAML configurations by passing the path as the parameter `config_path`. Examples of configuration files can be found in [`example_dags/yaml_dq_check_dag/yaml_configs/`](/example_dags/yaml_dq_check_dag/yaml_configs/). 
+
+With the implementation of configuration file input, [`dq_check_tools.py`](example_dags/utilities/dq_check_tools.py) utilizes this function to dynamically add dq operators to a DAG. There are two methods in this tool: 
+1. `create_dq_checks_from_directory()` - Collects all dq checks in a directory, with the option to recurse through sub-directories.
+2. `create_dq_checks_from_list()` - Collects all dq checks config files passed through by a list of YAML paths.
+
+### Examples
+Example DAG usages are also provided in this package located in the [`example_dags/`](example_dags/) directory. This directory includes examples for both types of Threshold Check Operators and the YAML data quality check tools.
 
 ## Tests
 Tests can be found [here](tests/). Test directory gives an outline of each test file and the purpose of each. Additionally, it contains test configurations such as a sql script that creates test tables and configuration YAML files.

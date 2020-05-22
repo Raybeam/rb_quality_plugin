@@ -18,13 +18,17 @@
 `test_data_quality_threshold_check_operator.py` includes tests for:
 - Test result of dq check is within threshold values
 - Test result of dq check is outside threshold values
+- Test result of dq check with only one threshold boundary
+- Test result of dq check with arguments for sql statement
 
 ## DataQualityThresholdSQLCheckOperator Tests
 `test_data_quality_threshold_sql_check_operator.py` includes tests for:
 - Test result of dq check is within evaluated min/max thresholds
 - Test result of dq check is outside evaluated min/max thresholds
+- Test result of dq check with only one threshold boundary
+- Test result of dq check with arguments for sql statement
 
-## YAML & Email Tests
+## YAML Load Tests
 `test_yaml_config.py` performs test cases for YAML configuration files. Tests include:
 - YAML configurations for both DataQualityThresholdCheckOperator and DataQualityThresholdSQLCheckOperator
 - Checks if `send_email_notification()` is called when a test fails and emails are provided in the operator 
