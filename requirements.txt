@@ -1,1 +1,6 @@
 httplib2
+google-auth
+google_auth_httplib2
+google.api_core
+google-api-python-client
+pandas_gbq

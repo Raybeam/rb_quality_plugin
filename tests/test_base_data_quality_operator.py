@@ -12,7 +12,7 @@ from airflow.hooks.postgres_hook import PostgresHook
 # from airflow.hooks.hive_hooks import HiveServer2Hook
 from airflow.models import Connection
 
-from rb_quality_plugin.operators.base_data_quality_operator import BaseDataQualityOperator
+from airflow.operators import BaseDataQualityOperator
 
 
 def test_get_sql_value_one_result(mocker):

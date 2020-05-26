@@ -5,11 +5,12 @@ from rb_quality_plugin.operators.data_quality_threshold_check_operator import Da
 from rb_quality_plugin.operators.data_quality_threshold_sql_check_operator import DataQualityThresholdSQLCheckOperator
 
 
-class RbQualityPlugin(AirflowPlugin):
+class RaybeamQualityPlugin(AirflowPlugin):
     name = "rb_quality_plugin"
-    operators = [BaseDataQualityOperator,
-                 DataQualityThresholdSQLCheckOperator,
-                 DataQualityThresholdSQLCheckOperator]
+    operators = [
+        BaseDataQualityOperator,
+        DataQualityThresholdCheckOperator,
+        DataQualityThresholdSQLCheckOperator]
     sensors = []
     flask_blueprints = []
     hooks = []

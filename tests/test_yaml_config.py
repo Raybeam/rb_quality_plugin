@@ -10,7 +10,7 @@ from airflow.hooks.base_hook import BaseHook
 from airflow.models import Connection, TaskInstance
 
 import yaml
-from .helper import get_records_mock, dummy_dag
+from rb_quality_plugin.tests.helper import get_records_mock, dummy_dag
 
 plugins_folder = conf.get("core", "plugins_folder")
 YAML_PATH = os.path.join(

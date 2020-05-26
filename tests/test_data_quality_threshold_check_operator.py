@@ -6,7 +6,7 @@ import airflow
 from airflow import AirflowException
 from airflow.hooks.base_hook import BaseHook
 from airflow.hooks.postgres_hook import PostgresHook
-from rb_quality_plugin.operators.data_quality_threshold_check_operator import DataQualityThresholdCheckOperator
+from airflow.operators import DataQualityThresholdCheckOperator
 from airflow.models import Connection, TaskInstance
 
 from rb_quality_plugin.tests.helper import get_records_mock, dummy_dag

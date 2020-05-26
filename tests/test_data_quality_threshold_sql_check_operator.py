@@ -6,10 +6,10 @@ import airflow
 from airflow import AirflowException
 from airflow.hooks.base_hook import BaseHook
 from airflow.hooks.postgres_hook import PostgresHook
-from rb_quality_plugin.operators.data_quality_threshold_sql_check_operator import DataQualityThresholdSQLCheckOperator
+from airflow.operators import DataQualityThresholdSQLCheckOperator
 from airflow.models import Connection, TaskInstance
 
-from .helper import get_records_mock, dummy_dag
+from rb_quality_plugin.tests.helper import get_records_mock, dummy_dag
 
 
 def test_inside_threshold_eval(mocker):

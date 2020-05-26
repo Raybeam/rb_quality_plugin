@@ -1,4 +1,4 @@
-# airflow-dq
+# Raybeam data quality plugin : rb_quality_plugin 
 
 ## Introduction
 An Airflow module that includes operators to perform data quality checks. This module includes an Airflow operator that periodically check the results of a query and validates it against a specified threshold.  
