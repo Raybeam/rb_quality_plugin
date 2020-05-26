@@ -1,18 +1,18 @@
 from datetime import datetime, timedelta
 
 from airflow import DAG
-from airflow.operators.data_quality_threshold_check_operator import DataQualityThresholdCheckOperator
-from airflow.operators.data_quality_threshold_sql_check_operator import DataQualityThresholdSQLCheckOperator
+from rb_quality_plugin.operators.data_quality_threshold_check_operator import DataQualityThresholdCheckOperator
+from rb_quality_plugin.operators.data_quality_threshold_sql_check_operator import DataQualityThresholdSQLCheckOperator
 from airflow.operators.postgres_operator import PostgresOperator
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.utils.trigger_rule import TriggerRule
 
 default_args = {
-    "owner" : "airflow",
-    "start_date" : datetime(2020,1,16),
-    "retries" : 0,
-    "retry_delay" : timedelta(minutes=5),
-    "email_on_failure" : True
+    "owner": "airflow",
+    "start_date": datetime(2020, 1, 16),
+    "retries": 0,
+    "retry_delay": timedelta(minutes=5),
+    "email_on_failure": True
 }
 
 dag = DAG(

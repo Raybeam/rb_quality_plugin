@@ -2,13 +2,15 @@ from datetime import datetime
 from unittest.mock import Mock, patch
 import pytest
 
+import airflow
 from airflow import AirflowException
 from airflow.hooks.base_hook import BaseHook
 from airflow.hooks.postgres_hook import PostgresHook
-from airflow.operators.data_quality_threshold_sql_check_operator import DataQualityThresholdSQLCheckOperator
+from rb_quality_plugin.operators.data_quality_threshold_sql_check_operator import DataQualityThresholdSQLCheckOperator
 from airflow.models import Connection, TaskInstance
 
-from .helper import get_records_mock, dummy_dag
+from rb_quality_plugin.tests.helper import get_records_mock, dummy_dag
+
 
 def test_inside_threshold_eval(mocker):
     min_threshold_sql = "SELECT MIN(cost) FROM price;"
@@ -85,6 +87,7 @@ def test_outside_threshold_eval(mocker):
     assert len(result) == 7
     assert not result["within_threshold"]
 
+
 def test_one_threshold_eval(mocker):
     min_threshold_sql = None
     max_threshold_sql = "Select MAX(VALUE) from test"
@@ -119,6 +122,7 @@ def test_one_threshold_eval(mocker):
     assert len(result) == 7
     assert result['min_threshold'] is None
     assert result["within_threshold"]
+
 
 def test_threshold_check_args(mocker):
     min_threshold_sql = "Select 0;"
@@ -155,6 +159,7 @@ def test_threshold_check_args(mocker):
 
     assert len(result) == 7
     assert result["within_threshold"]
+
 
 def test_no_thresholds_eval(mocker):
     min_threshold_sql = None
