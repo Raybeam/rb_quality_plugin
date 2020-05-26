@@ -2,13 +2,15 @@ from datetime import datetime
 from unittest.mock import Mock, patch
 import pytest
 
+import airflow
 from airflow import AirflowException
 from airflow.hooks.base_hook import BaseHook
 from airflow.hooks.postgres_hook import PostgresHook
-from airflow.operators.data_quality_threshold_check_operator import DataQualityThresholdCheckOperator
+from rb_quality_plugin.operators.data_quality_threshold_check_operator import DataQualityThresholdCheckOperator
 from airflow.models import Connection, TaskInstance
 
-from .helper import get_records_mock, dummy_dag
+from rb_quality_plugin.tests.helper import get_records_mock, dummy_dag
+
 
 def test_inside_threshold_values(mocker):
     min_threshold, max_threshold = 10, 15
@@ -81,6 +83,7 @@ def test_outside_threshold_values(mocker):
     assert len(result) == 7
     assert not result["within_threshold"]
 
+
 def test_one_threshold_value(mocker):
     min_threshold = 0
     max_threshold = None
@@ -114,6 +117,7 @@ def test_one_threshold_value(mocker):
     assert len(result) == 7
     assert result['max_threshold'] is None
     assert result["within_threshold"]
+
 
 def test_threshold_check_args(mocker):
     min_threshold = 50
@@ -149,6 +153,7 @@ def test_threshold_check_args(mocker):
 
     assert len(result) == 7
     assert result["within_threshold"]
+
 
 def test_no_thresholds_value(mocker):
     min_threshold = None

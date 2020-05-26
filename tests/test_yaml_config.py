@@ -2,8 +2,9 @@ import os
 from datetime import datetime
 from unittest.mock import Mock, patch
 
-from airflow.operators.data_quality_threshold_check_operator import DataQualityThresholdCheckOperator
-from airflow.operators.data_quality_threshold_sql_check_operator import DataQualityThresholdSQLCheckOperator
+from airflow.configuration import conf
+from rb_quality_plugin.operators.data_quality_threshold_check_operator import DataQualityThresholdCheckOperator
+from rb_quality_plugin.operators.data_quality_threshold_sql_check_operator import DataQualityThresholdSQLCheckOperator
 from airflow.hooks.postgres_hook import PostgresHook
 from airflow.hooks.base_hook import BaseHook
 from airflow.models import Connection, TaskInstance
@@ -11,7 +12,10 @@ from airflow.models import Connection, TaskInstance
 import yaml
 from .helper import get_records_mock, dummy_dag
 
-YAML_PATH = "./tests/configs/yaml_configs"
+plugins_folder = conf.get("core", "plugins_folder")
+YAML_PATH = os.path.join(
+    plugins_folder, "rb_quality_plugin", "tests", "configs", "yaml_configs")
+
 
 def test_inside_threshold_values(mocker):
     yaml_path = os.path.join(YAML_PATH, "test_inside_threshold_values.yaml")
@@ -41,6 +45,7 @@ def test_inside_threshold_values(mocker):
     assert len(result) == 7
     assert result["within_threshold"]
 
+
 def test_inside_threshold_sql(mocker):
     yaml_path = os.path.join(YAML_PATH, "test_inside_threshold_sql.yaml")
 
@@ -68,6 +73,7 @@ def test_inside_threshold_sql(mocker):
 
     assert len(result) == 7
     assert result["within_threshold"]
+
 
 def test_outside_threshold_values(mocker):
     yaml_path = os.path.join(YAML_PATH, "test_outside_threshold_values.yaml")
@@ -104,6 +110,7 @@ def test_outside_threshold_values(mocker):
     assert notif_mock.called
     assert len(result) == 7
     assert not result["within_threshold"]
+
 
 def test_outside_threshold_sql(mocker):
     yaml_path = os.path.join(YAML_PATH, "test_outside_threshold_sql.yaml")

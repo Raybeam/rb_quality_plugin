@@ -2,8 +2,8 @@ import os
 import yaml
 import logging
 
-from airflow.operators.data_quality_threshold_check_operator import DataQualityThresholdCheckOperator
-from airflow.operators.data_quality_threshold_sql_check_operator import DataQualityThresholdSQLCheckOperator
+from rb_quality_plugin.operators.data_quality_threshold_check_operator import DataQualityThresholdCheckOperator
+from rb_quality_plugin.operators.data_quality_threshold_sql_check_operator import DataQualityThresholdSQLCheckOperator
 
 DQ_OPERATORS = {
     "dq_check_sql_threshold": DataQualityThresholdSQLCheckOperator,
@@ -11,6 +11,7 @@ DQ_OPERATORS = {
 }
 
 log = logging.getLogger(__name__)
+
 
 def create_dq_checks_from_list(dag, dq_check_list):
     '''
@@ -33,7 +34,7 @@ def create_dq_checks_from_list(dag, dq_check_list):
             conf = yaml.safe_load(config)
             dq_type = conf.get('type')
             if 'task_id' in conf:
-                task_id ='task_' + conf['task_id']
+                task_id = 'task_' + conf['task_id']
 
         if dq_type:
             if dq_type in DQ_OPERATORS:
@@ -46,9 +47,11 @@ def create_dq_checks_from_list(dag, dq_check_list):
                 )
                 dq_check_tasks.append(task)
             else:
-                log.info("Type: %s not a DQ Operator... Skipping DQ creation", dq_type)
+                log.info(
+                    "Type: %s not a DQ Operator... Skipping DQ creation", dq_type)
         else:
-            log.info("File: %s does not contain 'type'... Skipping DQ creation", dq_config_path)
+            log.info(
+                "File: %s does not contain 'type'... Skipping DQ creation", dq_config_path)
 
     return dq_check_tasks
 
