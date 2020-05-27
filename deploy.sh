@@ -49,26 +49,6 @@ deploy_local()
   sort -u requirements.txt  > requirements2.txt
   mv requirements2.txt requirements.txt 
   pip3 install -r requirements.txt
-
-  while true; do
-      echo -e "Would you like to import rb_quality_plugin's sample dags? (Y/n)\n\n"
-      read import_sample_dags
-      echo
-      case $import_sample_dags in
-        [yY])
-          echo "Importing sample dags..."
-          mkdir dags/rb_quality_plugin_example_dags
-          cp -r plugins/rb_quality_plugin/example_dags/* dags/rb_quality_plugin_example_dags
-          break
-          ;;
-        [nN])
-          echo "Importing sample dags skipped..."
-          break
-          ;;
-        *)
-          echo -e "Invalid choice...\n\n"
-      esac
-  done
 }
 
 ################################################################################
@@ -171,6 +151,7 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 ################################################################################
 deploy_plugin()
 {
+  prompt_add_sample_dags
   if [ "$environment" == "local" ]; then
     deploy_local
     start_airflow
@@ -228,6 +209,31 @@ prompt_deploy() {
           echo -e "Invalid choice...\n\n"
       esac
     done
+}
+
+################################################################################
+#  Prompt user asking if they want to import sample dags.                      #
+################################################################################
+prompt_add_sample_dags() {
+  while true; do
+      echo -e "Would you like to import rb_quality_plugin's sample dags? (Y/n)\n\n"
+      read import_sample_dags
+      echo
+      case $import_sample_dags in
+        [yY])
+          echo "Importing sample dags..."
+          mkdir dags/rb_quality_plugin_example_dags
+          cp -r plugins/rb_quality_plugin/example_dags/* dags/rb_quality_plugin_example_dags
+          break
+          ;;
+        [nN])
+          echo "Importing sample dags skipped..."
+          break
+          ;;
+        *)
+          echo -e "Invalid choice...\n\n"
+      esac
+  done
 }
 
 ################################################################################
