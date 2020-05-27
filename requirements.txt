@@ -5,4 +5,4 @@ google.api_core
 google-api-python-client
 pandas_gbq
 pytest
-testing
+testing.postgresql
