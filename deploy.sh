@@ -85,24 +85,11 @@ deploy_gcc()
   echo -e "\n\nsetting airflow configurations..."
   gcloud composer environments update $ENVIRONMENT_NAME --location $LOCATION --update-airflow-configs webserver-rbac=False,core-store_serialized_dags=False,webserver-async_dagbag_loader=True,webserver-collect_dags_interval=10,webserver-dagbag_sync_interval=10,webserver-worker_refresh_interval=3600
 
-  while true; do
-      echo -e "Would you like to import rb_quality_plugin's sample dags? (Y/n)\n\n"
-      read import_sample_dags
-      echo
-      case $import_sample_dags in
-        [yY])
-          echo "Importing sample dags..."
-          gcloud composer environments storage dags import --environment=$ENVIRONMENT_NAME --location $LOCATION --source $(pwd)/plugins/rb_quality_plugin/example_dags
-          break
-          ;;
-        [nN])
-          echo "Importing sample dags skipped..."
-          break
-          ;;
-        *)
-          echo -e "Invalid choice...\n\n"
-      esac
-  done  
+  if [ "$import_sample_dags" == "y" ] || [ "$import_sample_dags" == "Y" ]; then
+    echo "Importing sample dags..."
+    gcloud composer environments storage dags import --environment=$ENVIRONMENT_NAME --location $LOCATION --source $(pwd)/plugins/rb_quality_plugin/example_dags
+  fi
+
   echo -e "\n\nInstalling rb_quality_plugin..."
   gcloud composer environments storage plugins import --environment=$ENVIRONMENT_NAME --location $LOCATION --source $(pwd)/plugins/rb_quality_plugin/
 }
