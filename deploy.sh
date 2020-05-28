@@ -77,7 +77,7 @@ deploy_gcc()
 
   gcloud config set project $PROJECT_NAME
   echo "updating requirements..."
-  cat $(pwd)/plugins/rb_quality_plugin/requirements.txt | while read requirement 
+  for requirement in $(cat $(pwd)/plugins/rb_quality_plugin/requirements.txt);
   do
     echo -e "installing python package: $requirement.."
     gcloud beta composer environments update $ENVIRONMENT_NAME --location $LOCATION --update-pypi-package=$requirement
@@ -173,27 +173,27 @@ prompt_deploy() {
       echo
       case $user_input_environment in
         "1"|"local")
-          echo -e "\n\nEnvironment set to: local"
+          echo -e "\nEnvironment set to: local\n"
           environment="local"
           break
           ;;
         "2"|"astronomer_local")
-          echo -e "\n\nEnvironment set to: astronomer_local"
+          echo -e "\nEnvironment set to: astronomer_local\n"
           environment="astronomer_local"
           break
           ;;
         "3"|"astronomer_remote")
-          echo -e "\n\nEnvironment set to: astronomer_remote"
+          echo -e "\nEnvironment set to: astronomer_remote\n"
           environment="astronomer_remote"
           break
           ;;
         "4"|"google_cloud_composer")
-          echo -e "\n\nEnvironment set to: google_cloud_composer"
+          echo -e "\nEnvironment set to: google_cloud_composer\n"
           environment="google_cloud_composer"
           break
           ;;
         *)
-          echo -e "\n\nInvalid choice..."
+          echo -e "\nInvalid choice...\n"
       esac
     done
 }
@@ -208,13 +208,13 @@ prompt_add_sample_dags() {
       echo
       case $import_sample_dags in
         [yY])
-          echo "\n\nImporting sample dags..."
+          echo -e "\n\nImporting sample dags..."
           mkdir dags/rb_quality_plugin_example_dags
           cp -r plugins/rb_quality_plugin/example_dags/* dags/rb_quality_plugin_example_dags
           break
           ;;
         [nN])
-          echo "\n\nImporting sample dags skipped..."
+          echo -e "\n\nImporting sample dags skipped..."
           break
           ;;
         *)
@@ -251,20 +251,20 @@ if [ -z ${environment+x} ]; then
 fi
 
 if [ "$(ls -A $(pwd))" ]; then
-  echo -e "Directory '$(pwd)' is not empty. Running this script may overwrite files in the directory.\n\nAre you sure you want to do this?(Y/n)"
+  echo -e "Directory '$(pwd)' is not empty. Running this script may overwrite files in the directory.\nAre you sure you want to do this?(Y/n)"
   read boolean_run_script
   echo
   case $boolean_run_script in
     [yY])
-      echo "\n\nStarting deploy script..."
+      echo -e "\n\nStarting deploy script..."
       deploy_plugin
       ;;
     *)
-      echo "\n\nExiting deploy script..."
+      echo -e "\n\nExiting deploy script..."
       exit 1
   esac
 else
-  echo "\n\nStarting deploy script..."
+  echo -e "\n\nStarting deploy script..."
   exit 1
   deploy_plugin
 fi
