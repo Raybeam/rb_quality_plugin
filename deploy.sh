@@ -173,22 +173,22 @@ prompt_deploy() {
       echo
       case $user_input_environment in
         "1"|"local")
-          echo "\n\nEnvironment set to: local"
+          echo -e "\n\nEnvironment set to: local"
           environment="local"
           break
           ;;
         "2"|"astronomer_local")
-          echo "\n\nEnvironment set to: astronomer_local"
+          echo -e "\n\nEnvironment set to: astronomer_local"
           environment="astronomer_local"
           break
           ;;
         "3"|"astronomer_remote")
-          echo "\n\nEnvironment set to: astronomer_remote"
+          echo -e "\n\nEnvironment set to: astronomer_remote"
           environment="astronomer_remote"
           break
           ;;
         "4"|"google_cloud_composer")
-          echo "\n\nEnvironment set to: google_cloud_composer"
+          echo -e "\n\nEnvironment set to: google_cloud_composer"
           environment="google_cloud_composer"
           break
           ;;
