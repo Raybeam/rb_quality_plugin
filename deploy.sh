@@ -159,7 +159,7 @@ deploy_plugin()
 ################################################################################
 start_airflow()
 {
-    echo -e "\n\n\n\nTo start airflow webserver, please open a new tab and run:\n\tcd '$(pwd)'; source \"bin/activate\"; airflow webserver"
+    echo -e "\n\nTo start airflow webserver, please open a new tab and run:\n\tcd '$(pwd)'; source \"bin/activate\"; airflow webserver"
     echo -e "\n\nTo start airflow scheduler, please open a new tab and run:\n\tcd '$(pwd)'; source \"bin/activate\"; airflow scheduler"
 }
 
@@ -168,32 +168,32 @@ start_airflow()
 ################################################################################
 prompt_deploy() {
     while true; do
-      echo -e "Environment not specified. Please select one of the following choices:\n\t[1] local\n\t[2]astronomer_local\n\t[3]astronomer_remote\n\t[4]google_cloud_composer\n\n"
+      echo -e "\n\nEnvironment not specified. Please select one of the following choices:\n\t[1] local\n\t[2]astronomer_local\n\t[3]astronomer_remote\n\t[4]google_cloud_composer"
       read user_input_environment 
       echo
       case $user_input_environment in
         "1"|"local")
-          echo "Environment set to: local"
+          echo "\n\nEnvironment set to: local"
           environment="local"
           break
           ;;
         "2"|"astronomer_local")
-          echo "Environment set to: astronomer_local"
+          echo "\n\nEnvironment set to: astronomer_local"
           environment="astronomer_local"
           break
           ;;
         "3"|"astronomer_remote")
-          echo "Environment set to: astronomer_remote"
+          echo "\n\nEnvironment set to: astronomer_remote"
           environment="astronomer_remote"
           break
           ;;
         "4"|"google_cloud_composer")
-          echo "Environment set to: google_cloud_composer"
+          echo "\n\nEnvironment set to: google_cloud_composer"
           environment="google_cloud_composer"
           break
           ;;
         *)
-          echo -e "Invalid choice...\n\n"
+          echo -e "\n\nInvalid choice..."
       esac
     done
 }
@@ -203,22 +203,22 @@ prompt_deploy() {
 ################################################################################
 prompt_add_sample_dags() {
   while true; do
-      echo -e "Would you like to import rb_quality_plugin's sample dags? (Y/n)\n\n"
+      echo -e "\n\nWould you like to import rb_quality_plugin's sample dags? (Y/n)"
       read import_sample_dags
       echo
       case $import_sample_dags in
         [yY])
-          echo "Importing sample dags..."
+          echo "\n\nImporting sample dags..."
           mkdir dags/rb_quality_plugin_example_dags
           cp -r plugins/rb_quality_plugin/example_dags/* dags/rb_quality_plugin_example_dags
           break
           ;;
         [nN])
-          echo "Importing sample dags skipped..."
+          echo "\n\nImporting sample dags skipped..."
           break
           ;;
         *)
-          echo -e "Invalid choice...\n\n"
+          echo -e "\n\nInvalid choice..."
       esac
   done
 }
@@ -256,15 +256,15 @@ if [ "$(ls -A $(pwd))" ]; then
   echo
   case $boolean_run_script in
     [yY])
-      echo "Starting deploy script..."
+      echo "\n\nStarting deploy script..."
       deploy_plugin
       ;;
     *)
-      echo "Exiting deploy script..."
+      echo "\n\nExiting deploy script..."
       exit 1
   esac
 else
-  echo "Starting deploy script..."
+  echo "\n\nStarting deploy script..."
   exit 1
   deploy_plugin
 fi
