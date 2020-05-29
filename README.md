@@ -19,17 +19,10 @@ Clone plugin into local workspace
 git clone https://github.com/Raybeam/rb_quality_plugin plugins/rb_quality_plugin
 ```
 Run plugin's deploy script.  
-
-### macOS
-```
-. plugins/rb_quality_plugin/deploy.sh
-```
-
-### Ubuntu
 ```
 ./plugins/rb_quality_plugin/deploy.sh
 ```
-
+  
 ## Features
 This Airflow module contains the following operators:
 - `BaseDataQualityOperator`
