@@ -8,6 +8,28 @@ Optionally:
  - If it exceeds the specified threshold level and an Airflow operator that sends an alert through email about given threshold breach
  - Results can be pushed to an external database to store the execution results history
 
+## Quick Setup
+Clone a sample airflow workspace (if you dont have an existing airflow repository).  
+```
+git clone https://github.com/Raybeam/rb-test-airflow/ deploy_test
+cd deploy_test
+```
+Clone plugin into local workspace  
+```
+git clone https://github.com/Raybeam/rb_quality_plugin plugins/rb_quality_plugin
+```
+Run plugin's deploy script.  
+
+### macOS
+```
+. plugins/rb_quality_plugin/deploy.sh
+```
+
+### Ubuntu
+```
+./plugins/rb_quality_plugin/deploy.sh
+```
+
 ## Features
 This Airflow module contains the following operators:
 - `BaseDataQualityOperator`
@@ -100,25 +122,3 @@ Diagrams below visualize flow of execution when `DataQualityThresholdCheckOperat
 
 ### DataQualityThresholdSQLCheckOperator Flowchart
 ![data_quality_threshold_sql_check_operator diagram](operator_diagrams/data_quality_threshold_sql_check_operator_flowchart.png)
-
-## Quick Setup
-Clone a sample airflow workspace (if you dont have an existing airflow repository).  
-```
-git clone https://github.com/Raybeam/lumen-test-airflow/ deploy_test
-cd deploy_test
-```
-Clone plugin into local workspace  
-```
-git clone https://github.com/Raybeam/rb_quality_plugin plugins/rb_quality_plugin
-```
-Run plugin's deploy script.  
-
-### macOS
-```
-. plugins/rb_quality_plugin/deploy.sh
-```
-
-### Ubuntu
-```
-./plugins/rb_quality_plugin/deploy.sh
-```
