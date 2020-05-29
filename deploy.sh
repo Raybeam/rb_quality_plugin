@@ -62,7 +62,7 @@ deploy_gcc()
   fi
 
   echo -e "\n\n\n"
-  echo "Please enter the location of the environment (ie. us-west3):"
+  echo "Please enter the region of the environment you'd like to deploy to (ie. us-west3):"
   read LOCATION
 
   echo -e "\n\n\n"
