@@ -1,0 +1,61 @@
+version: 2
+jobs:
+  build:
+    docker:
+    - image: circleci/python:3.7.7
+    steps:
+    - checkout
+    - restore_cache:
+        keys:
+          - rb-dq-dependencies-{{ checksum "requirements.txt" }}
+          # fallback to using the latest cache if no exact match is found
+          - rb-dependencies-
+    - run:
+        command: |-
+          python -m venv ~/.venv
+          . ~/.venv/bin/activate
+          pip install apache-airflow
+          pip install -r requirements.txt
+        name: Setup venv
+    - save_cache:
+        paths:
+          - ~/.venv
+        key: rb-dependencies-{{ checksum "requirements.txt" }}
+    - run:
+        command: |-
+          . ~/.venv/bin/activate
+          flake8
+        name: Run flake8 linter
+    - run:
+        command: git clone https://github.com/Raybeam/rb_test_airflow /home/circleci/rb_test_airflow
+        name: Set up Airflow
+    - run:
+        command: |-
+          . ~/.venv/bin/activate
+          cd /home/circleci/rb_test_airflow
+          export AIRFLOW_HOME=$PWD
+          airflow initdb
+          mkdir ./plugins/
+          ln -s /home/circleci/project ./plugins/rb_dq_plugin
+          airflow create_user -r Admin -u admin -e admin@example.com -f admin -l user -p admin
+          python -m pytest ./plugins/rb_dq_plugin/tests
+    - run:
+        command: |-
+          echo "TRIGGERER: ${CIRCLE_USERNAME}"
+          echo "BUILD_NUMBER: ${CIRCLE_BUILD_NUM}"
+          echo "BUILD_URL: ${CIRCLE_BUILD_URL}"
+          echo "BRANCH: ${CIRCLE_BRANCH}"
+          echo "RUNNING JOB: ${CIRCLE_JOB}"
+          echo "JOB PARALLELISM: ${CIRCLE_NODE_TOTAL}"
+          echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
+        name: Show some of the CircleCI runtime env vars
+    - run:
+        command: |-
+          echo "uname:" $(uname -a)
+          echo "arch: " $(arch)
+        name: Show system information
+workflows:
+  test:
+    jobs:
+    - build
+  version: 2
