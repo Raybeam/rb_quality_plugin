@@ -11,7 +11,7 @@ Optionally:
 ## Quick Setup
 Clone a sample airflow workspace (if you dont have an existing airflow repository).  
 ```
-git clone https://github.com/Raybeam/rb-test-airflow/ deploy_test
+git clone https://github.com/Raybeam/rb_test_airflow/ deploy_test
 cd deploy_test
 ```
 Clone plugin into local workspace  
