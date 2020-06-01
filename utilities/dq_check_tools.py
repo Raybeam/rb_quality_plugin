@@ -2,9 +2,9 @@ import os
 import yaml
 import logging
 
-from rb_quality_plugin.operators.data_quality_threshold_check_operator
+from rb_quality_plugin.operators.data_quality_threshold_check_operator\
     import DataQualityThresholdCheckOperator
-from rb_quality_plugin.operators.data_quality_threshold_sql_check_operator
+from rb_quality_plugin.operators.data_quality_threshold_sql_check_operator\
     import DataQualityThresholdSQLCheckOperator
 
 DQ_OPERATORS = {

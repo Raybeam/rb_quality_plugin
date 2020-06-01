@@ -3,9 +3,8 @@ import yaml
 from airflow import AirflowException
 from airflow.utils.decorators import apply_defaults
 
-from rb_quality_plugin.operators.base_data_quality_operator
+from rb_quality_plugin.operators.base_data_quality_operator\
     import BaseDataQualityOperator
-
 
 class DataQualityThresholdSQLCheckOperator(BaseDataQualityOperator):
     """

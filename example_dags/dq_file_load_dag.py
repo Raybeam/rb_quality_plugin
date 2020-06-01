@@ -1,10 +1,10 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from airflow import DAG
 import airflow.utils.dates as dt
-from rb_quality_plugin.operators.data_quality_threshold_check_operator
+from rb_quality_plugin.operators.data_quality_threshold_check_operator\
     import DataQualityThresholdCheckOperator
-from rb_quality_plugin.operators.data_quality_threshold_sql_check_operator
+from rb_quality_plugin.operators.data_quality_threshold_sql_check_operator\
     import DataQualityThresholdSQLCheckOperator
 from airflow.operators.postgres_operator import PostgresOperator
 from airflow.operators.dummy_operator import DummyOperator
@@ -44,7 +44,7 @@ task_check_total_revenue = DataQualityThresholdCheckOperator(
     min_threshold=30,
     max_threshold=60,
     push_conn_id="push_conn",
-    check_description="test to determine whether the amount"\
+    check_description="test to determine whether the amount"
                       " in Revenue table is between 30 and 60",
     dag=dag
 )
@@ -61,8 +61,8 @@ task_check_from_last_month = DataQualityThresholdSQLCheckOperator(
     min_threshold_sql="dq_file_load_sql_tests/dq_min_threshold.sql",
     max_threshold_sql="dq_file_load_sql_tests/dq_max_threshold.sql",
     push_conn_id="push_conn",
-    check_description="test of whether the revenue is between 20% of low"\
-                    " and high of Monthly_Return table in the last month"\
+    check_description="test of whether the revenue is between 20% of low"
+                    " and high of Monthly_Return table in the last month"
                     " (failure expected)",
     dag=dag
 )

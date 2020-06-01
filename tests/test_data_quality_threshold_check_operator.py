@@ -5,7 +5,7 @@ import pytest
 import airflow
 from airflow import AirflowException
 from airflow.utils.state import State
-from rb_quality_plugin.operators.data_quality_threshold_check_operator
+from rb_quality_plugin.operators.data_quality_threshold_check_operator\
     import DataQualityThresholdCheckOperator
 from airflow.models import TaskInstance
 
@@ -15,7 +15,8 @@ DAG = airflow.DAG("TEST_DAG_ID",
                   default_args={'start_date': DEFAULT_DATE})
 
 
-def _construct_task(min_threshold=None, max_threshold=None, sql='SELECT;', check_args={}):
+def _construct_task(min_threshold=None, max_threshold=None, sql='SELECT;',
+                    check_args={}):
     task = DataQualityThresholdCheckOperator(
         task_id="test_dq_check",
         conn_id="test_id",

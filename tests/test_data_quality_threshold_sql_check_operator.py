@@ -5,7 +5,7 @@ import pytest
 import airflow
 from airflow import AirflowException
 from airflow.utils.state import State
-from rb_quality_plugin.operators.data_quality_threshold_sql_check_operator
+from rb_quality_plugin.operators.data_quality_threshold_sql_check_operator\
     import DataQualityThresholdSQLCheckOperator
 from airflow.models import TaskInstance
 
@@ -14,12 +14,13 @@ DAG = airflow.DAG("TEST_DAG_ID",
                   schedule_interval='@daily',
                   default_args={'start_date': DEFAULT_DATE})
 
+
 def get_val_from_sql(sql):
     return int(sql)
 
 
-def _construct_task(min_threshold_sql=None, max_threshold_sql=None,sql='SELECT;',
-                    check_args={}):
+def _construct_task(min_threshold_sql=None, max_threshold_sql=None,
+                    sql='SELECT;', check_args={}):
     task = DataQualityThresholdSQLCheckOperator(
         task_id="test_dq_check",
         conn_id="test_id",
