@@ -62,8 +62,8 @@ task_check_from_last_month = DataQualityThresholdSQLCheckOperator(
     max_threshold_sql="dq_file_load_sql_tests/dq_max_threshold.sql",
     push_conn_id="push_conn",
     check_description="test of whether the revenue is between 20% of low"
-                    " and high of Monthly_Return table in the last month"
-                    " (failure expected)",
+                      " and high of Monthly_Return table in the last month"
+                      " (failure expected)",
     dag=dag
 )
 

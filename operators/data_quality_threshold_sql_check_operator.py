@@ -6,6 +6,7 @@ from airflow.utils.decorators import apply_defaults
 from rb_quality_plugin.operators.base_data_quality_operator\
     import BaseDataQualityOperator
 
+
 class DataQualityThresholdSQLCheckOperator(BaseDataQualityOperator):
     """
     DataQualityThresholdSQLCheckOperator inherits from
