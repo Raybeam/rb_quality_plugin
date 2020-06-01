@@ -24,8 +24,6 @@ class DataQualityThresholdSQLCheckOperator(BaseDataQualityOperator):
     :type threshold_conn_id: str
     :param config_path: path to yaml configuration file
     :type config_path: str
-    :param check_args: dq parameters for sql evaluation
-    :type check_args: dict
     """
 
     template_fields = ['sql', 'min_threshold_sql', 'max_threshold_sql']
@@ -37,10 +35,8 @@ class DataQualityThresholdSQLCheckOperator(BaseDataQualityOperator):
                  max_threshold_sql=None,
                  threshold_conn_id=None,
                  config_path=None,
-                 check_args={},
                  *args,
                  **kwargs):
-        self.dq_check_args = check_args
 
         if config_path:
             with open(config_path) as configs:

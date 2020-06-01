@@ -26,6 +26,10 @@ class BaseDataQualityOperator(BaseOperator):
     :type push_conn_id: str
     :param check_description: (optional) description of data quality sql statement
     :type check_description: str
+    :param use_legacy_sql: For BigQuery StandardSQL or LegacySQL
+    :type use_legacy_sql: bool
+    :param check_args: dq parameters for sql evaluation
+    :type check_args: dict
     """
 
     template_fields = ['sql']
@@ -38,15 +42,19 @@ class BaseDataQualityOperator(BaseOperator):
                  push_conn_id=None,
                  check_description=None,
                  use_legacy_sql=False,
+                 check_args = {}
                  *args,
                  **kwargs
                  ):
         super().__init__(*args, **kwargs)
+        self.dq_check_args = check_args
         self.conn_id = conn_id
         self.push_conn_id = push_conn_id
         self.sql = sql
-        self.check_description = check_description
         self.use_legacy_sql = use_legacy_sql
+        self.check_description = check_description.format(**self.dq_check_args)
+        self.task_id = self.task_id.format(**self.dq_check_args)
+        
 
     def execute(self, context):
         """Method where data quality check is performed """

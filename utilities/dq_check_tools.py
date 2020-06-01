@@ -29,18 +29,14 @@ def create_dq_checks_from_list(dag, dq_check_list):
     dq_check_tasks = []
 
     for dq_config_path, dq_check_args in dq_check_list:
-        task_id = 'task_' + dq_config_path.split('/')[-1][:-5]
         with open(dq_config_path) as config:
             conf = yaml.safe_load(config)
             dq_type = conf.get('type')
-            if 'task_id' in conf:
-                task_id = 'task_' + conf['task_id']
 
         if dq_type:
             if dq_type in DQ_OPERATORS:
                 dq_operator = DQ_OPERATORS[dq_type]
                 task = dq_operator(
-                    task_id=task_id,
                     config_path=dq_config_path,
                     check_args=dq_check_args,
                     dag=dag
