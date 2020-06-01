@@ -61,10 +61,34 @@ deploy_gcc()
     exit 1
   fi
 
-  echo -e "\n\n\n"
-  echo "Please enter the region of the environment you'd like to deploy to (ie. us-west3):"
-  read LOCATION
-
+  while true; do
+    echo -e "\n\n\n"
+    echo "Please select one of the following regions to deploy to:"
+    locations=( $(gcloud compute regions list --format="value(name)") )
+    for i in "${!locations[@]}"; do 
+      printf "%s\t%s\n" "[$i]" "${locations[$i]}"
+    done
+    read LOCATION
+    if [[ " ${array[@]} " =~ " $LOCATION " ]]; then
+      echo -e "location set to $LOCATION"
+      break
+    else
+      case $LOCATION in
+      ''|*[!0-9]*)
+        echo -e "$LOCATION is an invalid choice."
+        ;;
+      *)
+        if [ $(($LOCATION < ${#locations[@]})) ]; then
+          LOCATION="${locations[$LOCATION]}"
+          echo -e "location set to $LOCATION"
+          break
+        else
+          echo -e "$LOCATION is an invalid choice."
+        fi
+        ;;
+      esac
+    fi
+  done
   echo -e "\n\n\n"
   gcloud projects list
   echo "Please enter the name of the project:"
