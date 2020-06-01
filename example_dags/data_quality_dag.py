@@ -1,15 +1,18 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
+import airflow.utils.dates as dt
 from airflow import DAG
-from rb_quality_plugin.operators.data_quality_threshold_check_operator import DataQualityThresholdCheckOperator
-from rb_quality_plugin.operators.data_quality_threshold_sql_check_operator import DataQualityThresholdSQLCheckOperator
+from rb_quality_plugin.operators.data_quality_threshold_check_operator
+    import DataQualityThresholdCheckOperator
+from rb_quality_plugin.operators.data_quality_threshold_sql_check_operator
+    import DataQualityThresholdSQLCheckOperator
 from airflow.operators.postgres_operator import PostgresOperator
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.utils.trigger_rule import TriggerRule
 
 default_args = {
     "owner": "airflow",
-    "start_date": datetime(2020, 1, 16),
+    "start_date": dt.days_ago(1),
     "retries": 0,
     "retry_delay": timedelta(minutes=5),
     "email_on_failure": True
@@ -41,7 +44,8 @@ task_check_average = DataQualityThresholdCheckOperator(
     min_threshold=20,
     max_threshold=50,
     push_conn_id="push_conn",
-    check_description="test to determine whether the average of the Price table is between 20 and 50",
+    check_description="test to determine whether the average of the"\
+                      " Price table is between 20 and 50",
     dag=dag
 )
 
@@ -51,10 +55,13 @@ task_check_from_last_month = DataQualityThresholdSQLCheckOperator(
     sql="SELECT AVG(cost) FROM Costs;",
     conn_id="test_conn",
     threshold_conn_id="test_id",
-    min_threshold_sql="SELECT MIN(sale_price) FROM Sales WHERE date>=(DATE('{{ ds }}') - INTERVAL '1 month');",
-    max_threshold_sql="SELECT MAX(sale_price) FROM Sales WHERE date>=(DATE('{{ ds }}') - INTERVAL '1 month');",
+    min_threshold_sql="SELECT MIN(sale_price) FROM Sales WHERE date >="\
+                      " (DATE('{{ ds }}') - INTERVAL '1 month');",
+    max_threshold_sql="SELECT MAX(sale_price) FROM Sales WHERE date >="\
+                      " (DATE('{{ ds }}') - INTERVAL '1 month');",
     push_conn_id="push_conn",
-    check_description="test to of whether the average of Price table of last month is between low and high of Sales table from the last month",
+    check_description="test to of whether the average of Price table of"\
+                      " last month is between low and high of Sales table from the last month",
     dag=dag
 )
 
