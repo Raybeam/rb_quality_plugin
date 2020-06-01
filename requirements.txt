@@ -3,5 +3,6 @@ google-auth
 google_auth_httplib2
 google.api_core
 google-api-python-client
+flake8
 pandas_gbq
 pytest
