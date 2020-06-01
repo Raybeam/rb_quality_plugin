@@ -52,6 +52,40 @@ deploy_local()
 }
 
 ################################################################################
+# List choices and parse answer for prompt                                     #
+################################################################################
+format_prompt() {
+  config_param="$1"
+  shift
+  local list_choices=("$@")
+
+  for i in "${!list_choices[@]}"; do 
+    printf "%s\t%s\n" "[$i]" "${list_choices[$i]}"
+  done
+  read choice_selected
+
+  if [[ " ${list_choices[@]} " =~ " $choice_selected " ]]; then
+    echo -e "$config_param set to $choice_selected"
+    prompt_in_progress=false
+  else
+    case $choice_selected in
+    ''|*[!0-9]*)
+      echo -e "$choice_selected is an invalid choice."
+      ;;
+    *)
+      if [ $(($choice_selected < ${#list_choices[@]})) ]; then
+        choice_selected="${list_choices[$choice_selected]}"
+        echo -e "$config_param set to $choice_selected"
+        prompt_in_progress=false
+      else
+        echo -e "$choice_selected is an invalid choice."
+      fi
+      ;;
+    esac
+  fi
+}
+
+################################################################################
 # Deploy to Google Cloud Composer                                              #
 ################################################################################
 deploy_gcc()
@@ -61,43 +95,33 @@ deploy_gcc()
     exit 1
   fi
 
-  while true; do
+  prompt_in_progress=true
+  while $prompt_in_progress; do
     echo -e "\n\n\n"
     echo "Please select one of the following regions to deploy to:"
-    locations=( $(gcloud compute regions list --format="value(name)") )
-    for i in "${!locations[@]}"; do 
-      printf "%s\t%s\n" "[$i]" "${locations[$i]}"
-    done
-    read LOCATION
-    if [[ " ${array[@]} " =~ " $LOCATION " ]]; then
-      echo -e "location set to $LOCATION"
-      break
-    else
-      case $LOCATION in
-      ''|*[!0-9]*)
-        echo -e "$LOCATION is an invalid choice."
-        ;;
-      *)
-        if [ $(($LOCATION < ${#locations[@]})) ]; then
-          LOCATION="${locations[$LOCATION]}"
-          echo -e "location set to $LOCATION"
-          break
-        else
-          echo -e "$LOCATION is an invalid choice."
-        fi
-        ;;
-      esac
-    fi
+    region_list=( $(gcloud compute regions list --format="value(name)") )
+    format_prompt "region" "${region_list[@]}"
   done
-  echo -e "\n\n\n"
-  gcloud projects list
-  echo "Please enter the name of the project:"
-  read PROJECT_NAME
+  LOCATION=$choice_selected
 
-  echo -e "\n\n\n"
-  gcloud composer environments list --locations $LOCATION
-  echo "Please enter the name of the environment:"
-  read ENVIRONMENT_NAME
+
+  prompt_in_progress=true
+  while $prompt_in_progress; do
+    echo -e "\n\n\n"
+    project_list=( $(gcloud projects list --format="value(name)") )
+    echo "Please select one of the following projects:"
+    format_prompt "project" "${project_list[@]}"
+  done
+  PROJECT_NAME=$choice_selected
+
+  prompt_in_progress=true
+  while $prompt_in_progress; do
+    echo -e "\n\n\n"
+    environment_list=( $(gcloud composer environments list --locations $LOCATION  --format="value(name)") )
+    echo "Please select one of the following environments:"
+    format_prompt "environment" "${environment_list[@]}"
+  done
+  ENVIRONMENT_NAME=$choice_selected
 
   gcloud config set project $PROJECT_NAME
   echo "updating requirements..."
