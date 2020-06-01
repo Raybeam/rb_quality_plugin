@@ -1,25 +1,34 @@
 from datetime import datetime, timedelta
+import os
 
 import airflow
+from airflow.configuration import conf
 from airflow import DAG
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.postgres_operator import PostgresOperator
 
-from utilities.dq_check_tools import create_dq_checks_from_directory, create_dq_checks_from_list
+from rb_quality_plugin.utilities.dq_check_tools import create_dq_checks_from_directory, create_dq_checks_from_list
 
 default_args = {
-    "owner" : "airflow",
-    "start_date" : airflow.utils.dates.days_ago(1),
-    "retries" : 0,
-    "retry_delay" : timedelta(minutes=5),
-    "email_on_failure" : True
+    "owner": "airflow",
+    "start_date": airflow.utils.dates.days_ago(1),
+    "retries": 0,
+    "retry_delay": timedelta(minutes=5),
+    "email_on_failure": True
 }
 
-YAML_DIR = "./tests/configs/yaml_configs"
+plugins_folder = conf.get("core", "plugins_folder")
+
+YAML_DIR = os.path.join(
+    plugins_folder, "rb_quality_plugin", "tests", "configs")
+OTHER_YAML_DIR = os.path.join(
+    plugins_folder, "rb_quality_plugin", "example_dags", "yaml_dq_check_dag", "yaml_configs"
+)
 
 YAML_LIST = [
-    ('./example_dags/yaml_dq_check_dag/yaml_configs/dq_check1.yaml', {'start_date': default_args['start_date']}),
-    ('./example_dags/yaml_dq_check_dag/yaml_configs/dq_check2.yaml', {})
+    (os.path.join(OTHER_YAML_DIR, "dq_check1.yaml"),
+     {'start_date': default_args['start_date']}),
+    (os.path.join(OTHER_YAML_DIR, "dq_check1.yaml"), {})
 ]
 
 dag = DAG(
@@ -28,7 +37,8 @@ dag = DAG(
     schedule_interval=None
 )
 
-dq_check_tasks = create_dq_checks_from_directory(dag, YAML_DIR) + create_dq_checks_from_list(dag, YAML_LIST)
+dq_check_tasks = create_dq_checks_from_directory(
+    dag, YAML_DIR) + create_dq_checks_from_list(dag, YAML_LIST)
 
 start = DummyOperator(
     task_id="start",

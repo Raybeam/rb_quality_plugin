@@ -1,4 +1,4 @@
-# airflow-dq
+# Raybeam data quality plugin : rb_quality_plugin 
 
 ## Introduction
 An Airflow module that includes operators to perform data quality checks. This module includes an Airflow operator that periodically check the results of a query and validates it against a specified threshold.  
@@ -8,6 +8,21 @@ Optionally:
  - If it exceeds the specified threshold level and an Airflow operator that sends an alert through email about given threshold breach
  - Results can be pushed to an external database to store the execution results history
 
+## Quick Setup
+Clone a sample airflow workspace (if you dont have an existing airflow repository).  
+```
+git clone https://github.com/Raybeam/rb_test_airflow/ deploy_test
+cd deploy_test
+```
+Clone plugin into local workspace  
+```
+git clone https://github.com/Raybeam/rb_quality_plugin plugins/rb_quality_plugin
+```
+Run plugin's deploy script.  
+```
+./plugins/rb_quality_plugin/deploy.sh
+```
+  
 ## Features
 This Airflow module contains the following operators:
 - `BaseDataQualityOperator`

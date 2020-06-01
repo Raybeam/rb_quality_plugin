@@ -7,7 +7,7 @@ jobs:
     - checkout
     - restore_cache:
         keys:
-          - rb-dependencies-{{ checksum "requirements.txt" }}
+          - rb-dq-dependencies-{{ checksum "requirements.txt" }}
           # fallback to using the latest cache if no exact match is found
           - rb-dependencies-
     - run:

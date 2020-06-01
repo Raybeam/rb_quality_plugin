@@ -4,7 +4,7 @@ from airflow import AirflowException
 from airflow.plugins_manager import AirflowPlugin
 from airflow.utils.decorators import apply_defaults
 
-from base_data_quality_operator import BaseDataQualityOperator
+from rb_quality_plugin.operators.base_data_quality_operator import BaseDataQualityOperator
 
 
 class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
@@ -48,13 +48,14 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
         self.max_threshold = max_threshold
 
         if self.max_threshold is None and self.min_threshold is None:
-            raise AirflowException("At least a min threshold or a max threshold must be defined")
+            raise AirflowException(
+                "At least a min threshold or a max threshold must be defined")
 
         super().__init__(*args, **kwargs)
 
-
     def execute(self, context):
-        result = self.get_sql_value(self.conn_id, self.sql.format(**self.dq_check_args))
+        result = self.get_sql_value(
+            self.conn_id, self.sql.format(**self.dq_check_args))
         within_threshold = True
         if self.max_threshold is not None and result > self.max_threshold:
             within_threshold = False
@@ -76,8 +77,3 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
             context["ti"].xcom_push(key="return_value", value=info_dict)
             self.send_failure_notification(info_dict)
         return info_dict
-
-
-class DataQualityThresholdCheckPlugin(AirflowPlugin):
-    name = "data_quality_threshold_check_operator"
-    operators = [DataQualityThresholdCheckOperator]
