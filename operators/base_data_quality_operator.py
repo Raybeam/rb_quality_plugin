@@ -42,20 +42,29 @@ class BaseDataQualityOperator(BaseOperator):
                  sql,
                  conn_id,
                  push_conn_id=None,
-                 check_description="",
+                 check_description=None,
                  use_legacy_sql=False,
-                 check_args={},
+                 check_args=None,
                  *args,
                  **kwargs
                  ):
-        self.dq_check_args = check_args
         self.conn_id = conn_id
         self.push_conn_id = push_conn_id
         self.sql = sql
         self.use_legacy_sql = use_legacy_sql
-        self.check_description = check_description.format(**self.dq_check_args)
-        task_id = task_id.format(**self.dq_check_args)
 
+        if check_args:
+            self.dq_check_args = check_args
+        else:
+            self.dq_check_args = {}
+
+        if check_description:
+            self.check_description = check_description.format(
+                **self.dq_check_args)
+        else:
+            self.check_description = check_description
+
+        task_id = task_id.format(**self.dq_check_args)
         super().__init__(task_id=task_id, *args, **kwargs)
 
     def execute(self, context):
