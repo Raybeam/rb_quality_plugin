@@ -41,7 +41,7 @@ class BaseDataQualityOperator(BaseOperator):
                  sql,
                  conn_id,
                  push_conn_id=None,
-                 check_description=None,
+                 check_description="",
                  use_legacy_sql=False,
                  check_args={},
                  *args,
