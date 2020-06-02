@@ -1,26 +1,28 @@
 import yaml
 
 from airflow import AirflowException
-from airflow.plugins_manager import AirflowPlugin
 from airflow.utils.decorators import apply_defaults
 
-from rb_quality_plugin.operators.base_data_quality_operator import BaseDataQualityOperator
+from rb_quality_plugin.operators.base_data_quality_operator\
+    import BaseDataQualityOperator
 
 
 class DataQualityThresholdSQLCheckOperator(BaseDataQualityOperator):
     """
-    DataQualityThresholdSQLCheckOperator inherits from DataQualityThresholdCheckOperator.
-    This operator will first calculate the min and max threshold values with given sql
-    statements from a defined source, evaluate the data quality check, and then compare
-    that result to the min and max thresholds calculated.
+    DataQualityThresholdSQLCheckOperator inherits from
+        DataQualityThresholdCheckOperator.
+    This operator will first calculate the min and max threshold values with
+        given sql statements from a defined source, evaluate the data quality
+        check, and then compare that result to the min and max thresholds
+        calculated.
 
-    :param min_threshold_sql: lower bound sql statement (or path to sql statement)
+    :param min_threshold_sql: lower bound sql statement (or path to sql)
     :type min_threshold_sql: str
-    :param max_threshold_sql: upper bound sql statement (or path to sql statement)
+    :param max_threshold_sql: upper bound sql statement (or path to sql)
     :type max_threshold_sql: str
-    :param threshold_conn_type: connection type of threshold sql statement table
+    :param threshold_conn_type: connection type of threshold sql table
     :type threshold_conn_type: str
-    :param threshold_conn_id: connection id of threshold sql statement table
+    :param threshold_conn_id: connection id of threshold sql table
     :type threshold_conn_id: str
     :param config_path: path to yaml configuration file
     :type config_path: str
@@ -62,7 +64,7 @@ class DataQualityThresholdSQLCheckOperator(BaseDataQualityOperator):
 
         if not (self.max_threshold_sql or self.min_threshold_sql):
             raise AirflowException(
-                "At least a min threshold sql or a max threshold sql must be defined")
+                "At least a min or max threshold must be defined")
 
         super().__init__(*args, **kwargs)
 

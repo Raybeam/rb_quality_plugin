@@ -36,9 +36,9 @@ jobs:
           export AIRFLOW_HOME=$PWD
           airflow initdb
           mkdir ./plugins/
-          ln -s /home/circleci/project ./plugins/rb_dq_plugin
+          ln -s /home/circleci/project ./plugins/rb_quality_plugin
           airflow create_user -r Admin -u admin -e admin@example.com -f admin -l user -p admin
-          python -m pytest ./plugins/rb_dq_plugin/tests
+          python -m pytest ./plugins/rb_quality_plugin/tests
     - run:
         command: |-
           echo "TRIGGERER: ${CIRCLE_USERNAME}"

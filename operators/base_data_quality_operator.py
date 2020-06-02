@@ -24,7 +24,8 @@ class BaseDataQualityOperator(BaseOperator):
     :type push_conn_type: str
     :param push_conn_id: (optional) connection id of external database
     :type push_conn_id: str
-    :param check_description: (optional) description of data quality sql statement
+    :param check_description: (optional) description of data quality
+        sql statement
     :type check_description: str
     """
 
@@ -64,7 +65,7 @@ class BaseDataQualityOperator(BaseOperator):
     def send_failure_notification(self, info_dict):
         """
         send_failure_notification will throw an AirflowException with logging
-        information and dq check results from the failed task that was just run.
+        information and dq check results from the failed task just run
         """
         body = """
             Data Quality Check: "{task_id}" failed.
@@ -73,7 +74,8 @@ class BaseDataQualityOperator(BaseOperator):
             Check description: {description}
             Execution date: {execution_date}
             SQL: {sql}
-            Result: {result} is not within thresholds {min_threshold} and {max_threshold}
+            Result: {result} is not within thresholds {min_threshold}
+                and {max_threshold}
         """.format(
             task_id=self.task_id, dag_id=self.dag_id,
             description=info_dict.get("description"), sql=self.sql,
