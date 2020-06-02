@@ -15,7 +15,7 @@ DAG = airflow.DAG("TEST_DAG_ID",
                   default_args={'start_date': DEFAULT_DATE})
 
 
-def get_val_from_sql(sql):
+def get_val_from_sql(val, sql):
     return int(sql)
 
 
