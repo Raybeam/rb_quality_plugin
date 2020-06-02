@@ -43,7 +43,7 @@ class BaseDataQualityOperator(BaseOperator):
                  push_conn_id=None,
                  check_description=None,
                  use_legacy_sql=False,
-                 check_args = {}
+                 check_args={},
                  *args,
                  **kwargs
                  ):
@@ -55,7 +55,6 @@ class BaseDataQualityOperator(BaseOperator):
         self.use_legacy_sql = use_legacy_sql
         self.check_description = check_description.format(**self.dq_check_args)
         self.task_id = self.task_id.format(**self.dq_check_args)
-        
 
     def execute(self, context):
         """Method where data quality check is performed """
