@@ -1,10 +1,9 @@
-from unittest import mock
 import pytest
-
-import airflow
+from unittest import mock
 from airflow.hooks.base_hook import BaseHook
+from rb_quality_plugin.operators.base_data_quality_operator\
+    import BaseDataQualityOperator
 
-from rb_quality_plugin.operators.base_data_quality_operator import BaseDataQualityOperator
 
 @mock.patch.object(BaseHook, 'get_connection')
 @mock.patch.object(BaseHook, 'get_hook')
@@ -27,6 +26,7 @@ def test_get_sql_value_one_result(mock_get_hook, mock_get_connection):
 
     assert result == 10
 
+
 @mock.patch.object(BaseHook, 'get_connection')
 @mock.patch.object(BaseHook, 'get_hook')
 def test_get_sql_value_not_one_result(mock_get_hook, mock_get_connection):
@@ -47,6 +47,7 @@ def test_get_sql_value_not_one_result(mock_get_hook, mock_get_connection):
             sql=task.sql
         )
 
+
 @mock.patch.object(BaseHook, 'get_connection')
 @mock.patch.object(BaseHook, 'get_hook')
 def test_get_sql_value_no_result(mock_get_hook, mock_get_connection):
@@ -66,6 +67,7 @@ def test_get_sql_value_no_result(mock_get_hook, mock_get_connection):
             conn_id=task.conn_id,
             sql=task.sql
         )
+
 
 @mock.patch.object(BaseHook, 'get_connection')
 @mock.patch.object(BaseHook, 'get_hook')

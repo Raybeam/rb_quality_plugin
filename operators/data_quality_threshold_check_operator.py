@@ -1,10 +1,10 @@
 import yaml
 
 from airflow import AirflowException
-from airflow.plugins_manager import AirflowPlugin
 from airflow.utils.decorators import apply_defaults
 
-from rb_quality_plugin.operators.base_data_quality_operator import BaseDataQualityOperator
+from rb_quality_plugin.operators.base_data_quality_operator\
+    import BaseDataQualityOperator
 
 
 class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
