@@ -2,6 +2,6 @@ import pytest
 
 
 @pytest.mark.compatibility
-def sample_test():
+def test_sample():
     print("rb quality compatibility test was called.")
     return True
