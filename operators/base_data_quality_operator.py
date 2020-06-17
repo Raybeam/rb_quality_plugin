@@ -27,6 +27,10 @@ class BaseDataQualityOperator(BaseOperator):
     :param check_description: (optional) description of data quality
         sql statement
     :type check_description: str
+    :param use_legacy_sql: (optional)
+    :type use_legacy_sql: boolean
+    :param message_writer: (optional)
+    :type message_writer: MessageWriter
     """
 
     template_fields = ['sql']
@@ -39,6 +43,7 @@ class BaseDataQualityOperator(BaseOperator):
                  push_conn_id=None,
                  check_description=None,
                  use_legacy_sql=False,
+                 message_writer=None,
                  *args,
                  **kwargs
                  ):
@@ -48,6 +53,7 @@ class BaseDataQualityOperator(BaseOperator):
         self.sql = sql
         self.check_description = check_description
         self.use_legacy_sql = use_legacy_sql
+        self.message_writer = message_writer
 
     def execute(self, context):
         """Method where data quality check is performed """
@@ -61,6 +67,8 @@ class BaseDataQualityOperator(BaseOperator):
         info = "\n".join([f"""{key}: {item}""" for key,
                           item in info_dict.items()])
         log.info("Log from %s:\n%s", self.dag_id, info)
+        if self.message_writer:
+            self.message_writer.send_message(info_dict)
 
     def send_failure_notification(self, info_dict):
         """

@@ -64,6 +64,7 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
 
         info_dict = {
             "result": result,
+            "dag_id": self.dag_id,
             "description": self.check_description,
             "task_id": self.task_id,
             "execution_date": str(context.get("execution_date")),

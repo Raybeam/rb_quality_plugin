@@ -1,8 +1,9 @@
-httplib2
+google-api-python-client
 google-auth
 google_auth_httplib2
 google.api_core
 google-api-python-client
 flake8
+httplib2
 pandas_gbq
 pytest
