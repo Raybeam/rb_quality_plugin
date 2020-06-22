@@ -21,7 +21,7 @@ class BigQueryWriter(SQLWriter):
         message = [tuple(i[1] for i in message.items())]
         hook = BigQueryHook(bigquery_conn_id=self.connection_id)
         client = Client(project=hook._get_field("project"),
-                         credentials=hook._get_credentials())
+                        credentials=hook._get_credentials())
         table = client.get_table(self.table_id)
         errors = client.insert_rows(table, message)
         if not errors:
