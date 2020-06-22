@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 # PYTHON_ARGCOMPLETE_OK
 # -*- coding: utf-8 -*-
@@ -19,6 +18,16 @@ manual_instructions = f"""
     For one reason or another we couldn't set up your system for you.  Have
     no fear, it's easy to do it yourself.
     """
+
+
+def copytree(src, dst, symlinks=False, ignore=None):
+    for item in os.listdir(src):
+        s = os.path.join(src, item)
+        d = os.path.join(dst, item)
+        if os.path.isdir(s):
+            shutil.copytree(s, d, symlinks, ignore)
+        else:
+            shutil.copy2(s, d)
 
 
 def find_dags_folder():
@@ -93,9 +102,9 @@ def init(args):
 
         logging.info(f"Copying dags from {setup_path} to {dags_folder}")
         if not args.dry:
-            shutil.copy(os.path.join(setup_path, "dags"), os.path.join(dags_folder, f"{plugin_name}_example_dags"))
+            copytree(os.path.join(setup_path, "dags"), os.path.join(dags_folder, f"{plugin_name}_example_dags"))
 
-        if not os.path.isfolder(os.path.join(setup_path, "dags", f"{plugin_name}_example_dags")):
+        if not os.path.isdir(os.path.join(dags_folder, f"{plugin_name}_example_dags")):
             err = (
                 "Could not find file after copying, "
                 + "check that dags exists in your DAGs folder"  # noqa: W503
@@ -132,12 +141,12 @@ def add_sample_dag(setup_path, args):
 
     logging.info("Adding sample DAG to DAGs folder")
     if not args.dry:
-        shutil.copy(os.path.join(setup_path, "dags"), os.path.join(dags_folder, f"{plugin_name}_example_dags"))
+        copytree(os.path.join(setup_path, "dags"), os.path.join(dags_folder, f"{plugin_name}_example_dags"))
 
-    if not os.path.isfolder(os.path.join(dags_folder, f"{plugin_name}_example_dags")):
+    if not os.path.isdir(os.path.join(dags_folder, f"{plugin_name}_example_dags")):
         err = (
             "Could not find file after copying, check "
-            + f"that {os.path.join(dags_folder, plugin_name+"_example_dags")} exists in your DAGs folder"  # noqa: W503
+            + f"that {os.path.join(dags_folder, plugin_name + '_example_dags')} exists in your DAGs folder"  # noqa: W503
         )
         raise OSError(err)
 

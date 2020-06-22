@@ -48,21 +48,19 @@ By putting the `AIRFLOW_HOME` env in the `bin/activate` file, you set the path e
 ### Set up a user (admin:admin)
 `> airflow create_user -r Admin -u admin -e admin@example.com -f admin -l user -p admin`
 
-### Clone the status plugin into your plugins
+### Clone the plugin into your plugins
 `> git clone https://github.com/Raybeam/rb_plugin_template plugins/rb_plugin_template`
 
-### Copy over rb status requirements
+### Copy over plugins requirements
 `> cat plugins/rb_plugin_template/requirements.txt >> requirements.txt`  
 `> pip install -r requirements.txt`
 
-### Set up rb status
-Move over the main rb status DAG and sample DAGs (if wanted)
+### Set up the plugin
+Move over the samples (if wanted)
 
 `> plugins/rb_plugin_template/bin/setup init`
 
 `> plugins/rb_plugin_template/bin/setup add_samples`
-
-Only the DAG works from the rb status plugin binary right now.
 
 `> plugins/rb_plugin_template/bin/setup add_samples --dag_only`
 
@@ -79,7 +77,6 @@ In a new terminal, navigate to the same directory.
 
 ### Interact with UI
 In a web brower, visit localhost:8080.  
-If you see a tab for "Status" in the header, then the installation was a success.
 
 ## Set up : Astronomer Deploy
 ### Set up local environment
@@ -99,12 +96,11 @@ In your working directory
 `> astro dev start`
   
 ### Interact with UI
-In a web brower, visit localhost:8080.  
-If you see a tab for "Status" in the header, then the installation was a success.
+In a web brower, visit localhost:8080.
 
 ## Set up : Google Cloud Composer Deploy
 
-### Clone the status plugin into your plugins
+### Clone the plugin into your plugins
 `> git clone https://github.com/Raybeam/rb_plugin_template plugins/rb_plugin_template`
 
 ### Install gcloud 

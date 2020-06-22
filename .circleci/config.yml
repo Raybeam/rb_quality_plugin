@@ -34,7 +34,13 @@ jobs:
           . ~/.venv/bin/activate
           cd /home/circleci/project/rb_test_airflow
           mkdir /home/circleci/project/rb_test_airflow/plugins/
-          cat /home/circleci/project/VERSIONS.md  | while read line || [[ -n $line ]];
+          git clone https://github.com/Raybeam/rb_plugin_deploy /home/circleci/project/rb_test_airflow/plugins/rb_plugin_deploy
+        name: Clone rb_plugin_deploy
+    - run:
+        command: |-
+          . ~/.venv/bin/activate
+          cd /home/circleci/project/rb_test_airflow
+          cat /home/circleci/project/rb_test_airflow/plugins/rb_plugin_deploy/VERSIONS.md  | while read line || [[ -n $line ]];
           do
             if [[ $line =~ "["*"]"  ]]; then
               plugin_name=${line#*\[}
@@ -58,7 +64,7 @@ jobs:
           $webserve_airflow &
           airflow list_dags
           
-          cat /home/circleci/project/VERSIONS.md  | while read line || [[ -n $line ]];
+          cat /home/circleci/project/rb_test_airflow/plugins/rb_plugin_deploy/VERSIONS.md  | while read line || [[ -n $line ]];
           do
             if [[ $line =~ "["*"]"  ]]; then
               plugin_name=${line#*\[}
