@@ -1,0 +1,186 @@
+
+#!/usr/bin/env python3
+# PYTHON_ARGCOMPLETE_OK
+# -*- coding: utf-8 -*-
+#
+import os
+import logging
+import argparse
+import shutil
+import sys
+
+from airflow.configuration import conf
+from airflow.models import Variable
+
+plugin_name = "rb_plugin_template"
+
+manual_instructions = f"""
+    MANUAL SETUP INSTRUCTIONS:
+    For one reason or another we couldn't set up your system for you.  Have
+    no fear, it's easy to do it yourself.
+    """
+
+
+def find_dags_folder():
+    dags_folder = conf.get("core", "dags_folder")
+    if dags_folder and os.path.isdir(dags_folder):
+        logging.info(f"Assuming DAGs folder at {dags_folder}")
+        return dags_folder
+    logging.warning(
+        f"Could not find DAGs folder at {dags_folder}, trying $AIRFLOW_HOME."
+    )
+
+    airflow_home = os.environ.get("AIRFLOW_HOME")
+    if airflow_home:
+        dags_folder = os.path.join(airflow_home, "dags")
+        if dags_folder and os.path.isdir(dags_folder):
+            logging.info(f"Assuming DAGs folder at {dags_folder}")
+            return dags_folder
+        logging.warning(f"Could not find DAGs folder at {dags_folder}, trying $PWD.")
+
+    dags_folder = os.path.join(os.environ["PWD"], "dags")
+    if dags_folder and os.path.isdir(dags_folder):
+        logging.info(f"Assuming DAGs folder at {dags_folder}")
+        return dags_folder
+    logging.warning(f"Could not find DAGs folder at {dags_folder}, out of options.")
+
+    raise OSError(f"Could not find DAGs folder path")
+
+
+def find_setup_path():
+    plugins_folder = conf.get("core", "plugins_folder")
+    setup_path = os.path.join(plugins_folder, plugin_name, "setup")
+    if setup_path and os.path.isdir(setup_path):
+        logging.info(f"Assuming setup path at {setup_path}")
+        return setup_path
+    logging.warning(f"Could not find setup path at {setup_path}, trying $AIRFLOW_HOME.")
+
+    airflow_home = os.environ.get("AIRFLOW_HOME")
+    if airflow_home:
+        setup_path = os.path.join(airflow_home, "plugins", plugin_name, "setup")
+        if setup_path and os.path.isdir(setup_path):
+            logging.info(f"Assuming setup path at {setup_path}")
+            return setup_path
+        logging.warning(f"Could not find setup path at {setup_path}, trying $PWD")
+
+    setup_path = os.path.join(os.environ["PWD"], "plugins", plugin_name, "setup")
+    if setup_path and os.path.isdir(setup_path):
+        logging.info(f"Assuming setup path at {setup_path}")
+        return setup_path
+    logging.warning(f"Could not find setup path at {setup_path}.")
+
+    raise OSError(f"Could not find setup path")
+
+
+def find_sample_reports(setup_path):
+    report_files = {}
+    for root, _, files in os.walk(os.path.join(setup_path, "reports")):
+        for name in files:
+            fname, ext = os.path.splitext(name)
+            if ext == ".json":
+                report_files[fname] = os.path.join(root, name)
+
+    return report_files
+
+
+def init(args):
+    logging.info(args.dry)
+    try:
+        logging.info("Starting initialization")
+
+        dags_folder = find_dags_folder()
+        setup_path = find_setup_path()
+
+        logging.info(f"Copying dags from {setup_path} to {dags_folder}")
+        if not args.dry:
+            shutil.copy(os.path.join(setup_path, "dags"), os.path.join(dags_folder, f"{plugin_name}_example_dags"))
+
+        if not os.path.isfolder(os.path.join(setup_path, "dags", f"{plugin_name}_example_dags")):
+            err = (
+                "Could not find file after copying, "
+                + "check that dags exists in your DAGs folder"  # noqa: W503
+            )
+            raise OSError(err)
+    except Exception:
+        print(manual_instructions)
+        raise
+
+
+def add_samples(args):
+    try:
+        setup_path = find_setup_path()
+
+        add_sample_dag(setup_path, args)
+        if args.dag_only:
+            return
+
+        report_files = find_sample_reports(setup_path)
+        for fname, path in report_files.items():
+            report_name = f"{plugin_name}_{fname}"
+            logging.info(f"Adding report {report_name} with json at {path}")
+            if not args.dry:
+                with open(path) as f:
+                    s = f.read()
+                    Variable.set(report_name, s)
+    except Exception:
+        print(manual_instructions)
+        raise
+
+
+def add_sample_dag(setup_path, args):
+    dags_folder = find_dags_folder()
+
+    logging.info("Adding sample DAG to DAGs folder")
+    if not args.dry:
+        shutil.copy(os.path.join(setup_path, "dags"), os.path.join(dags_folder, f"{plugin_name}_example_dags"))
+
+    if not os.path.isfolder(os.path.join(dags_folder, f"{plugin_name}_example_dags")):
+        err = (
+            "Could not find file after copying, check "
+            + f"that {os.path.join(dags_folder, plugin_name+"_example_dags")} exists in your DAGs folder"  # noqa: W503
+        )
+        raise OSError(err)
+
+
+if __name__ == "__main__":
+
+    if conf.get("core", "security") == "kerberos":
+        os.environ["KRB5CCNAME"] = conf.get("kerberos", "ccache")
+        os.environ["KRB5_KTNAME"] = conf.get("kerberos", "keytab")
+
+    parser = argparse.ArgumentParser(
+        description="""
+    This plugin does X.  To operate, it needs
+    to include a file in the DAGs folder.  A sample DAG is also provided if you'd like
+    to get some sample data in the Airflow DB in order to try the plugin out.
+    """
+    )
+    subparsers = parser.add_subparsers()
+
+    parser_init = subparsers.add_parser(
+        "init", help="Add rb status plugin to the DAGs folder"
+    )
+    parser_init.add_argument(
+        "--dry", action="store_true", help="Do a dry run.  No files are moved."
+    )
+    parser_init.set_defaults(func=init)
+
+    parser_sample = subparsers.add_parser(
+        "add_samples",
+        help="Add a sample DAG and Variables for random values and populated reports",
+    )
+    parser_sample.add_argument(
+        "--dry",
+        action="store_true",
+        help="Do a dry run.  No files are moved.  No changes made.",
+    )
+    parser_sample.add_argument(
+        "--dag_only", action="store_true", help="Add a sample DAG to seed the DB"
+    )
+    parser_sample.set_defaults(func=add_samples)
+
+    args = parser.parse_args()
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
+    args.func(args)

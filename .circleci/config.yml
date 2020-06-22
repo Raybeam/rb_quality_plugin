@@ -1,0 +1,89 @@
+version: 2
+jobs:
+  build:
+    docker:
+    - image: circleci/python:3.6.2-stretch-browsers
+    steps:
+    - checkout
+    - restore_cache:
+        keys:
+          - rb-dependencies-{{ checksum "requirements.txt" }}
+          # fallback to using the latest cache if no exact match is found
+          - rb-dependencies-
+    - run:
+        command: |-
+          python3 -m venv ~/.venv
+          . ~/.venv/bin/activate
+          pip3 install apache-airflow
+          pip3 install -r requirements.txt
+        name: Setup venv
+    - save_cache:
+        paths:
+          - ~/.venv
+        key: rb-dependencies-{{ checksum "requirements.txt" }}
+    - run:
+        command: |-
+          . ~/.venv/bin/activate
+          flake8
+        name: Run flake8 linter
+    - run:
+        command: git clone https://github.com/Raybeam/rb_test_airflow /home/circleci/project/rb_test_airflow
+        name: Set up Airflow
+    - run:
+        command: |-
+          . ~/.venv/bin/activate
+          cd /home/circleci/project/rb_test_airflow
+          mkdir /home/circleci/project/rb_test_airflow/plugins/
+          cat /home/circleci/project/VERSIONS.md  | while read line || [[ -n $line ]];
+          do
+            if [[ $line =~ "["*"]"  ]]; then
+              plugin_name=${line#*\[}
+              plugin_name=${plugin_name%\]*}
+              git clone -b compatibility_tests https://github.com/Raybeam/$plugin_name /home/circleci/project/rb_test_airflow/plugins/$plugin_name
+              pip3 install -r /home/circleci/project/rb_test_airflow/plugins/$plugin_name/requirements.txt
+            fi
+          done
+        name: Download plugins and install requirements
+    - run:
+        command: |-
+          . ~/.venv/bin/activate
+          cd /home/circleci/project/rb_test_airflow
+          export AIRFLOW_HOME=$PWD
+          airflow initdb
+          airflow create_user -r Admin -u admin -e admin@example.com -f admin -l user -p admin
+          schedule_airflow="airflow scheduler"
+          webserve_airflow="airflow webserver"
+          echo -e "spinning up scheduler and webserver..."
+          $schedule_airflow &
+          $webserve_airflow &
+          airflow list_dags
+          
+          cat /home/circleci/project/VERSIONS.md  | while read line || [[ -n $line ]];
+          do
+            if [[ $line =~ "["*"]"  ]]; then
+              plugin_name=${line#*\[}
+              plugin_name=${plugin_name%\]*}
+              pytest /home/circleci/project/rb_test_airflow/plugins/$plugin_name/tests -m compatibility
+            fi
+          done
+        name: Run compatiblity tests
+    - run:
+        command: |-
+          echo "TRIGGERER: ${CIRCLE_USERNAME}"
+          echo "BUILD_NUMBER: ${CIRCLE_BUILD_NUM}"
+          echo "BUILD_URL: ${CIRCLE_BUILD_URL}"
+          echo "BRANCH: ${CIRCLE_BRANCH}"
+          echo "RUNNING JOB: ${CIRCLE_JOB}"
+          echo "JOB PARALLELISM: ${CIRCLE_NODE_TOTAL}"
+          echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
+        name: Show some of the CircleCI runtime env vars
+    - run:
+        command: |-
+          echo "uname:" $(uname -a)
+          echo "arch: " $(arch)
+        name: Show system information
+workflows:
+  test:
+    jobs:
+    - build
+  version: 2
