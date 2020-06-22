@@ -3,13 +3,13 @@ from datetime import datetime
 
 import airflow
 from airflow.configuration import conf
-from rb_quality_plugin.operators.data_quality_threshold_check_operator\
+from operators.data_quality_threshold_check_operator\
     import DataQualityThresholdCheckOperator
-from rb_quality_plugin.operators.data_quality_threshold_sql_check_operator\
+from operators.data_quality_threshold_sql_check_operator\
     import DataQualityThresholdSQLCheckOperator
-from rb_quality_plugin.utilities.dq_check_tools\
+from utilities.dq_check_tools\
     import create_dq_checks_from_directory
-from rb_quality_plugin.utilities.dq_check_tools\
+from utilities.dq_check_tools\
     import create_dq_checks_from_list
 
 DEFAULT_DATE = datetime.now()

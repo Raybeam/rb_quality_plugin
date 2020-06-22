@@ -1,9 +1,10 @@
 import yaml
+from collections import OrderedDict
 
 from airflow import AirflowException
 from airflow.utils.decorators import apply_defaults
 
-from rb_quality_plugin.operators.base_data_quality_operator\
+from operators.base_data_quality_operator\
     import BaseDataQualityOperator
 
 
@@ -62,7 +63,7 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
         if self.min_threshold is not None and result < self.min_threshold:
             within_threshold = False
 
-        info_dict = {
+        info_ordereddict = OrderedDict({
             "result": result,
             "dag_id": self.dag_id,
             "description": self.check_description,
@@ -71,10 +72,10 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
             "min_threshold": self.min_threshold,
             "max_threshold": self.max_threshold,
             "within_threshold": within_threshold
-        }
+        })
 
-        self.push(info_dict)
-        if not info_dict["within_threshold"]:
-            context["ti"].xcom_push(key="return_value", value=info_dict)
-            self.send_failure_notification(info_dict)
-        return info_dict
+        self.push(info_ordereddict)
+        if not info_ordereddict["within_threshold"]:
+            context["ti"].xcom_push(key="return_value", value=info_ordereddict)
+            self.send_failure_notification(info_ordereddict)
+        return info_ordereddict

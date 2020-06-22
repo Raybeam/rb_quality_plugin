@@ -59,16 +59,19 @@ class BaseDataQualityOperator(BaseOperator):
         """Method where data quality check is performed """
         raise NotImplementedError
 
-    def push(self, info_dict):
+    def push(self, info_ordereddict):
         """
         Optional: Send data check info and metadata to an external database.
         Default functionality will log metadata.
+
+        Note that the info dictionary sent must be ordered to ensure
+        correct insertion into tables requiring specific column order.
         """
         info = "\n".join([f"""{key}: {item}""" for key,
-                          item in info_dict.items()])
+                          item in info_ordereddict.items()])
         log.info("Log from %s:\n%s", self.dag_id, info)
         if self.message_writer:
-            self.message_writer.send_message(info_dict)
+            self.message_writer.send_message(info_ordereddict)
 
     def send_failure_notification(self, info_dict):
         """
