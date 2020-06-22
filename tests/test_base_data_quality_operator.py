@@ -1,7 +1,7 @@
 import pytest
 from unittest import mock
 from airflow.hooks.base_hook import BaseHook
-from operators.base_data_quality_operator\
+from base_data_quality_operator\
     import BaseDataQualityOperator
 
 

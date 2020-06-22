@@ -3,9 +3,9 @@ from datetime import datetime
 
 import airflow
 from airflow.configuration import conf
-from operators.data_quality_threshold_check_operator\
+from data_quality_threshold_check_operator\
     import DataQualityThresholdCheckOperator
-from operators.data_quality_threshold_sql_check_operator\
+from data_quality_threshold_sql_check_operator\
     import DataQualityThresholdSQLCheckOperator
 from utilities.dq_check_tools\
     import create_dq_checks_from_directory

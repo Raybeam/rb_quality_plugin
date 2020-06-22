@@ -2,9 +2,9 @@ from datetime import timedelta
 
 from airflow import DAG
 import airflow.utils.dates as dt
-from rb_quality_plugin.operators.data_quality_threshold_check_operator\
+from data_quality_threshold_check_operator\
     import DataQualityThresholdCheckOperator
-from rb_quality_plugin.operators.data_quality_threshold_sql_check_operator\
+from data_quality_threshold_sql_check_operator\
     import DataQualityThresholdSQLCheckOperator
 from airflow.operators.postgres_operator import PostgresOperator
 from airflow.operators.dummy_operator import DummyOperator
