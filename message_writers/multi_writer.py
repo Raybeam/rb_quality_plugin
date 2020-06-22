@@ -1,4 +1,4 @@
-from message_writer import MessageWriter
+from message_writers.message_writer import MessageWriter
 
 
 class MultiWriter(MessageWriter):

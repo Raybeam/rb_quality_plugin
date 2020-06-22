@@ -2,17 +2,17 @@ from collections import OrderedDict
 from unittest import mock
 import pytest
 from google.cloud.bigquery import Client
-from airflow.contrib.hooks import BigQueryHook # omitting this breaks the directory imports for some reason
 
-from message_writer import MessageWriter
-from bigquery_writer import BigQueryWriter
-from multi_writer import MultiWriter
+from message_writers.message_writer import MessageWriter
+from message_writers.bigquery_writer import BigQueryWriter
+from message_writers.multi_writer import MultiWriter
 
 
 def test_message_writer():
-    writer = MessageWriter(connection_id='test_conn')
+    writer = MessageWriter()
     with pytest.raises(NotImplementedError):
         writer.send_message([{'a': 1}])
+
 
 @mock.patch.object(Client, 'insert_rows')
 @mock.patch.object(Client, 'get_table')
@@ -30,7 +30,9 @@ def test_bigquery_writer(mock_get_table, mock_insert_rows):
     writer = BigQueryWriter(connection_id='google_cloud_default',
                             table_id=test_table_id)
     writer.send_message(test_message)
-    mock_insert_rows.assert_called_once_with(test_table_id, test_message)
+    mock_insert_rows.assert_called_once_with(test_table_id,
+                                 [tuple(i[1] for i in test_message.items())])
+
 
 @mock.patch.object(MessageWriter, 'send_message')
 def test_multiwriter(mock_send_message):
@@ -41,7 +43,7 @@ def test_multiwriter(mock_send_message):
     """
     test_message = OrderedDict({"a": 1})
     writer = MultiWriter(writers=[MessageWriter(connection_id='test_conn1'),
-                          MessageWriter(connection_id='test_conn2')])
+                                  MessageWriter(connection_id='test_conn2')])
     assert mock_send_message.call_count == 0
     writer.send_message(test_message)
     assert mock_send_message.call_count == 2
