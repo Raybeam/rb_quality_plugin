@@ -14,9 +14,10 @@ def test_message_writer():
         writer.send_message([{'a': 1}])
 
 
+@mock.patch.object(Client, '__init__', return_value=None)
 @mock.patch.object(Client, 'insert_rows')
 @mock.patch.object(Client, 'get_table')
-def test_bigquery_writer(mock_get_table, mock_insert_rows):
+def test_bigquery_writer(mock_get_table, mock_insert_rows, mock_client):
     """
     Mock the BigQuery connection and ensure that the correct info is passed
     when calling send_message().
