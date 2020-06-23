@@ -1,7 +1,6 @@
 from collections import OrderedDict
 from unittest import mock
 import pytest
-from google.cloud.bigquery import Client
 
 from rb_quality_plugin.message_writers.message_writer import MessageWriter
 from rb_quality_plugin.message_writers.bigquery_writer import BigQueryWriter
@@ -14,24 +13,26 @@ def test_message_writer():
         writer.send_message([{'a': 1}])
 
 
-@mock.patch('message_writers.bigquery_writer.Client', autospec=True)
-@mock.patch.object(Client, 'insert_rows')
-def test_bigquery_writer(mock_insert_rows, mock_client):
+@mock.patch('rb_quality_plugin.message_writers.bigquery_writer.Client',
+            autospec=True)
+def test_bigquery_writer(mock_client):
     """
     Mock the BigQuery connection and ensure that the correct info is passed
     when calling send_message().
-    :param mock_get_table:
-    :param mock_insert_rows:
+    :param mock_client:
     :return:
     """
     test_table_id = 'test_db.test_table_id'
     test_message = OrderedDict({"a": 1})
+    mock_client.insert_rows.return_value = []
+    mock_client().get_table.return_value = test_table_id
     writer = BigQueryWriter(connection_id='google_cloud_default',
                             table_id=test_table_id)
     writer.send_message(test_message)
-    mock_client.insert_rows.assert_called_once_with(test_table_id,
-                                                    [tuple(i[1] for i in
-                                                     test_message.items())])
+
+    mock_client().insert_rows.assert_called_once_with(test_table_id,
+                                                      [tuple(i[1] for i in
+                                                       test_message.items())])
 
 
 @mock.patch.object(MessageWriter, 'send_message')
