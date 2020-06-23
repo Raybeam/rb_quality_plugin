@@ -5,7 +5,7 @@ import pytest
 import airflow
 from airflow import AirflowException
 from airflow.utils.state import State
-from data_quality_threshold_sql_check_operator\
+from rb_quality_plugin.operators.data_quality_threshold_sql_check_operator\
     import DataQualityThresholdSQLCheckOperator
 from airflow.models import TaskInstance
 
