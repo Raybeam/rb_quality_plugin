@@ -30,8 +30,8 @@ def test_bigquery_writer(mock_insert_rows, mock_client):
                             table_id=test_table_id)
     writer.send_message(test_message)
     mock_client.insert_rows.assert_called_once_with(test_table_id,
-                                             [tuple(i[1] for i in
-                                              test_message.items())])
+                                                    [tuple(i[1] for i in
+                                                    test_message.items())])
 
 
 @mock.patch.object(MessageWriter, 'send_message')
