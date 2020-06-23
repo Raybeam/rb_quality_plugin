@@ -4,7 +4,7 @@ from collections import OrderedDict
 from airflow import AirflowException
 from airflow.utils.decorators import apply_defaults
 
-from operators.base_data_quality_operator\
+from rb_quality_plugin.operators.base_data_quality_operator\
     import BaseDataQualityOperator
 
 

@@ -2,9 +2,9 @@ import os
 import yaml
 import logging
 
-from operators.data_quality_threshold_check_operator\
+from data_quality_threshold_check_operator\
     import DataQualityThresholdCheckOperator
-from operators.data_quality_threshold_sql_check_operator\
+from data_quality_threshold_sql_check_operator\
     import DataQualityThresholdSQLCheckOperator
 
 DQ_OPERATORS = {
