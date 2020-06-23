@@ -1,7 +1,7 @@
 from airflow.contrib.hooks.bigquery_hook import BigQueryHook
 from google.cloud.bigquery import Client
 
-from message_writers.sql_writer import SQLWriter
+from rb_quality_plugin.message_writers.sql_writer import SQLWriter
 
 
 class BigQueryWriter(SQLWriter):

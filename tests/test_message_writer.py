@@ -3,9 +3,9 @@ from unittest import mock
 import pytest
 from google.cloud.bigquery import Client
 
-from message_writers.message_writer import MessageWriter
-from message_writers.bigquery_writer import BigQueryWriter
-from message_writers.multi_writer import MultiWriter
+from rb_quality_plugin.message_writers.message_writer import MessageWriter
+from rb_quality_plugin.message_writers.bigquery_writer import BigQueryWriter
+from rb_quality_plugin.message_writers.multi_writer import MultiWriter
 
 
 def test_message_writer():
