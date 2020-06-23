@@ -13,7 +13,7 @@ def test_message_writer():
         writer.send_message([{'a': 1}])
 
 
-@mock.patch('rb_quality_plugin.message_writers.bigquery_writer.Client',
+@mock.patch('google.cloud.bigquery_writer.Client',
             autospec=True)
 def test_bigquery_writer(mock_client):
     """
