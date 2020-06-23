@@ -14,10 +14,9 @@ def test_message_writer():
         writer.send_message([{'a': 1}])
 
 
-@mock.patch.object(Client, '__init__', return_value=None)
+@mock.patch('message_writers.bigquery_writer.Client', autospec=True)
 @mock.patch.object(Client, 'insert_rows')
-@mock.patch.object(Client, 'get_table')
-def test_bigquery_writer(mock_get_table, mock_insert_rows, mock_client):
+def test_bigquery_writer(mock_insert_rows, mock_client):
     """
     Mock the BigQuery connection and ensure that the correct info is passed
     when calling send_message().
@@ -27,11 +26,10 @@ def test_bigquery_writer(mock_get_table, mock_insert_rows, mock_client):
     """
     test_table_id = 'test_db.test_table_id'
     test_message = OrderedDict({"a": 1})
-    mock_get_table.return_value = test_table_id
     writer = BigQueryWriter(connection_id='google_cloud_default',
                             table_id=test_table_id)
     writer.send_message(test_message)
-    mock_insert_rows.assert_called_once_with(test_table_id,
+    mock_client.insert_rows.assert_called_once_with(test_table_id,
                                              [tuple(i[1] for i in
                                               test_message.items())])
 
