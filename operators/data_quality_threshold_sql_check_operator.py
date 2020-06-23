@@ -3,11 +3,11 @@ import yaml
 from airflow import AirflowException
 from airflow.utils.decorators import apply_defaults
 
-from rb_quality_plugin.operators.data_quality_threshold_operator
-    import DataQualityThresholdOperator
+from rb_quality_plugin.operators.data_quality_threshold_check_operator\
+    import DataQualityThresholdCheckOperator
 
 
-class DataQualityThresholdSQLCheckOperator(DataQualityThresholdOperator):
+class DataQualityThresholdSQLCheckOperator(DataQualityThresholdCheckOperator):
     """
     DataQualityThresholdSQLCheckOperator inherits from
         DataQualityThresholdCheckOperator.
