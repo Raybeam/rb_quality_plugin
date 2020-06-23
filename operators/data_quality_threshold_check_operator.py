@@ -32,20 +32,15 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
                  **kwargs):
 
         self.dq_check_args = check_args
+        defaults = {
+            'min_threshold': min_threshold,
+            'max_threshold': max_threshold,
+        }
         if config_path:
-            with open(config_path) as configs:
-                dq_configs = yaml.safe_load(configs)
+            kwargs, defaults = self.read_from_config(config_path, kwargs, defaults)
 
-            for key in dq_configs:
-                if key == 'min_threshold' and min_threshold is None:
-                    min_threshold = dq_configs[key]
-                elif key == 'max_threshold' and max_threshold is None:
-                    max_threshold = dq_configs[key]
-                elif key not in kwargs:
-                    kwargs[key] = dq_configs[key]
-
-        self.min_threshold = min_threshold
-        self.max_threshold = max_threshold
+        self.min_threshold = defaults['min_threshold']
+        self.max_threshold = defaults['max_threshold']
 
         if self.max_threshold is None and self.min_threshold is None:
             raise AirflowException(
@@ -53,22 +48,23 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
 
         super().__init__(*args, **kwargs)
 
-    def execute(self, context):
-        result = self.get_sql_value(
-            self.conn_id, self.sql.format(**self.dq_check_args))
-        within_threshold = True
-        if self.max_threshold is not None and result > self.max_threshold:
-            within_threshold = False
-        if self.min_threshold is not None and result < self.min_threshold:
-            within_threshold = False
+    def option_between(self, value, low, high):
+        if low is not None and value < low:
+              return False
+        if high is not None and value > high:
+              return False
+        return True
+
+    def alert(self, context, result, min_threshold, max_threshold):
+        within_threshold = self.option_between(result, min_threshold, max_threshold)
 
         info_dict = {
             "result": result,
             "description": self.check_description,
             "task_id": self.task_id,
             "execution_date": str(context.get("execution_date")),
-            "min_threshold": self.min_threshold,
-            "max_threshold": self.max_threshold,
+            "min_threshold": min_threshold,
+            "max_threshold": max_threshold,
             "within_threshold": within_threshold
         }
 
@@ -77,3 +73,9 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
             context["ti"].xcom_push(key="return_value", value=info_dict)
             self.send_failure_notification(info_dict)
         return info_dict
+
+    def execute(self, context):
+        result = self.get_sql_value(
+            self.conn_id, self.sql, self.dq_check_args)
+
+        return self.alert(context, result, self.min_threshold, self.max_threshold)

@@ -3,11 +3,11 @@ import yaml
 from airflow import AirflowException
 from airflow.utils.decorators import apply_defaults
 
-from rb_quality_plugin.operators.base_data_quality_operator\
-    import BaseDataQualityOperator
+from rb_quality_plugin.operators.data_quality_threshold_operator
+    import DataQualityThresholdOperator
 
 
-class DataQualityThresholdSQLCheckOperator(BaseDataQualityOperator):
+class DataQualityThresholdSQLCheckOperator(DataQualityThresholdOperator):
     """
     DataQualityThresholdSQLCheckOperator inherits from
         DataQualityThresholdCheckOperator.
@@ -44,23 +44,17 @@ class DataQualityThresholdSQLCheckOperator(BaseDataQualityOperator):
                  **kwargs):
         self.dq_check_args = check_args
 
+        defaults = {
+            'min_threshold_sql': min_threshold_sql,
+            'max_threshold_sql': max_threshold_sql,
+            'threshold_conn_id': threshold_conn_id,
+        }
         if config_path:
-            with open(config_path) as configs:
-                dq_configs = yaml.safe_load(configs)
+            kwargs, defaults = self.read_from_config(config_path, kwargs, defaults)
 
-            for key in dq_configs:
-                if key == 'min_threshold_sql' and not min_threshold_sql:
-                    min_threshold_sql = dq_configs[key]
-                elif key == 'max_threshold_sql' and not max_threshold_sql:
-                    max_threshold_sql = dq_configs[key]
-                elif key == 'threshold_conn_id' and not threshold_conn_id:
-                    threshold_conn_id = dq_configs[key]
-                elif key not in kwargs:
-                    kwargs[key] = dq_configs[key]
-
-        self.min_threshold_sql = min_threshold_sql
-        self.max_threshold_sql = max_threshold_sql
-        self.threshold_conn_id = threshold_conn_id
+        self.min_threshold_sql = defaults['min_threshold_sql']
+        self.max_threshold_sql = defaults['max_threshold_sql']
+        self.threshold_conn_id = defaults['threshold_conn_id']
 
         if not (self.max_threshold_sql or self.min_threshold_sql):
             raise AirflowException(
@@ -69,41 +63,15 @@ class DataQualityThresholdSQLCheckOperator(BaseDataQualityOperator):
         super().__init__(*args, **kwargs)
 
     def execute(self, context):
-        if self.min_threshold_sql:
-            min_threshold = self.get_sql_value(
-                self.threshold_conn_id,
-                self.min_threshold_sql.format(**self.dq_check_args))
-        else:
-            min_threshold = None
+        min_threshold = self.get_sql_value(
+            self.threshold_conn_id,
+            self.min_threshold_sql, self.dq_check_args)
 
-        if self.max_threshold_sql:
-            max_threshold = self.get_sql_value(
-                self.threshold_conn_id,
-                self.max_threshold_sql.format(**self.dq_check_args))
-        else:
-            max_threshold = None
+        max_threshold = self.get_sql_value(
+            self.threshold_conn_id,
+            self.max_threshold_sql, self.dq_check_args)
 
         result = self.get_sql_value(
-            self.conn_id, self.sql.format(**self.dq_check_args))
+            self.conn_id, self.sql, self.dq_check_args)
 
-        within_threshold = True
-        if max_threshold is not None and result > max_threshold:
-            within_threshold = False
-        if min_threshold is not None and result < min_threshold:
-            within_threshold = False
-
-        info_dict = {
-            "result": result,
-            "description": self.check_description,
-            "task_id": self.task_id,
-            "execution_date": str(context.get("execution_date")),
-            "min_threshold": min_threshold,
-            "max_threshold": max_threshold,
-            "within_threshold": within_threshold
-        }
-
-        self.push(info_dict)
-        if not info_dict["within_threshold"]:
-            context["ti"].xcom_push(key="return_value", value=info_dict)
-            self.send_failure_notification(info_dict)
-        return info_dict
+        return self.alert(context, result, min_threshold, max_threshold)

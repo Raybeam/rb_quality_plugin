@@ -1,4 +1,5 @@
 import logging
+import yaml
 
 from airflow import AirflowException
 from airflow.hooks.base_hook import BaseHook
@@ -49,6 +50,37 @@ class BaseDataQualityOperator(BaseOperator):
         self.check_description = check_description
         self.use_legacy_sql = use_legacy_sql
 
+    def read_from_config(self, config_path, operator_kwargs, defaults):
+        """
+        Reads configuration data from the yaml file at the provided config_path.
+        For each key present in the file and defaults, it overwrites the value in defaults when None.
+        Combines the remaining yaml data and operator_kwargs.
+        Returns the updated dicts in order given.
+
+        :param config_path: Path to a yaml file
+        :type config_path: str
+        :param operator_kwargs: The kwargs pass to the operator when constructed.
+        :type operator_kwargs: dict
+        :param defaults: The keys we want to extract out of the yaml with any values we want to maintain. Keys to extract and always use should be assigned the value None.
+        :type defaults: dict
+        :return: The provided dicts updated with values from the parsed yaml file.
+        """
+
+        with open(config_path) as configs:
+            dq_configs = yaml.safe_load(configs)
+
+            # If any value in our defaults is None,
+            # but we have data in our config, use that config data.
+            # We can't use update here because it will overwrite with Nones.
+            for key in defaults:
+                if not defaults[key] and key in dq_configs:
+                    defaults[key] = dq_configs[key]
+                    del dq_configs[key]
+
+            # return the defaults updated with the config
+            # plus our operator args with the yaml when available.
+            return dq_configs.update(operator_kwargs), defaults
+
     def execute(self, context):
         """Method where data quality check is performed """
         raise NotImplementedError
@@ -86,11 +118,15 @@ class BaseDataQualityOperator(BaseOperator):
         )
         raise AirflowException(body)
 
-    def get_sql_value(self, conn_id, sql):
+    def get_sql_value(self, conn_id, sql, format_args):
         """
         get_sql_value executes a sql query given proper connection parameters.
         The result of the sql query should be one and only one numeric value.
         """
+        if sql is None:
+          return None
+
+        sql = sql.format(**format_args)
 
         conn = BaseHook.get_connection(conn_id)
         if conn.conn_type == 'google_cloud_platform':
