@@ -23,12 +23,7 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
 
     @apply_defaults
     def __init__(
-        self,
-        min_threshold=None,
-        max_threshold=None,
-        config_path=None,
-        *args,
-        **kwargs
+        self, min_threshold=None, max_threshold=None, config_path=None, *args, **kwargs
     ):
 
         self.dq_check_args = check_args
@@ -38,9 +33,7 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
         }
 
         if config_path:
-            kwargs, defaults = self.read_from_config(
-                config_path, kwargs, defaults
-            )
+            kwargs, defaults = self.read_from_config(config_path, kwargs, defaults)
 
         self.min_threshold = defaults["min_threshold"]
         self.max_threshold = defaults["max_threshold"]
@@ -60,9 +53,7 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
         return True
 
     def alert(self, context, result, min_threshold, max_threshold):
-        within_threshold = self.option_between(
-            result, min_threshold, max_threshold
-        )
+        within_threshold = self.option_between(result, min_threshold, max_threshold)
 
         info_dict = {
             "result": result,
@@ -81,10 +72,6 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
         return info_dict
 
     def execute(self, context):
-        result = self.get_sql_value(
-            self.conn_id, self.sql.format(**self.dq_check_args)
-        )
+        result = self.get_sql_value(self.conn_id, self.sql.format(**self.dq_check_args))
 
-        return self.alert(
-            context, result, self.min_threshold, self.max_threshold
-        )
+        return self.alert(context, result, self.min_threshold, self.max_threshold)

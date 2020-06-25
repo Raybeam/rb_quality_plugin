@@ -20,9 +20,7 @@ default_args = {
     "email_on_failure": True,
 }
 
-dag = DAG(
-    "data_quality_check", default_args=default_args, schedule_interval="@daily"
-)
+dag = DAG("data_quality_check", default_args=default_args, schedule_interval="@daily")
 
 task_load_test_data = PostgresOperator(
     task_id="load_test_data",
@@ -31,9 +29,7 @@ task_load_test_data = PostgresOperator(
     dag=dag,
 )
 
-task_before_dq = DummyOperator(
-    task_id="task_before_data_quality_checks", dag=dag
-)
+task_before_dq = DummyOperator(task_id="task_before_data_quality_checks", dag=dag)
 
 """Task to check avg value is between [20, 50] (test passes)"""
 task_check_average = DataQualityThresholdCheckOperator(

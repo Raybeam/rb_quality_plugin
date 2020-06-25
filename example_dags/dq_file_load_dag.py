@@ -20,9 +20,7 @@ default_args = {
     "email_on_failure": True,
 }
 
-dag = DAG(
-    "dq_sql_files_dag", default_args=default_args, schedule_interval="@monthly"
-)
+dag = DAG("dq_sql_files_dag", default_args=default_args, schedule_interval="@monthly")
 
 task_load_test_data = PostgresOperator(
     task_id="load_test_data",
@@ -31,9 +29,7 @@ task_load_test_data = PostgresOperator(
     dag=dag,
 )
 
-task_before_dq = DummyOperator(
-    task_id="task_before_data_quality_checks", dag=dag
-)
+task_before_dq = DummyOperator(task_id="task_before_data_quality_checks", dag=dag)
 
 """Task to check total revenue is between [30, 60] (test passes)"""
 task_check_total_revenue = DataQualityThresholdCheckOperator(

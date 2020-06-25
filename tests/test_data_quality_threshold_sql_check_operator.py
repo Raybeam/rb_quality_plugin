@@ -23,7 +23,7 @@ def get_val_from_sql(val, sql):
 
 
 def _construct_task(
-    min_threshold_sql=None, max_threshold_sql=None, sql="SELECT;", check_args={}
+    min_threshold_sql=None, max_threshold_sql=None, sql="SELECT;", check_args={},
 ):
     task = DataQualityThresholdSQLCheckOperator(
         task_id="test_dq_check",

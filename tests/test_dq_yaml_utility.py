@@ -9,12 +9,8 @@ from rb_quality_plugin.operators.data_quality_threshold_check_operator import (
 from rb_quality_plugin.operators.data_quality_threshold_sql_check_operator import (
     DataQualityThresholdSQLCheckOperator,
 )
-from rb_quality_plugin.utilities.dq_check_tools import (
-    create_dq_checks_from_directory,
-)
-from rb_quality_plugin.utilities.dq_check_tools import (
-    create_dq_checks_from_list,
-)
+from rb_quality_plugin.utilities.dq_check_tools import create_dq_checks_from_directory
+from rb_quality_plugin.utilities.dq_check_tools import create_dq_checks_from_list
 
 DEFAULT_DATE = datetime.now()
 DAG = airflow.DAG(
@@ -47,16 +43,9 @@ def test_create_dq_checks_from_directory_no_recursion():
 
 def test_create_dq_checks_from_list():
     yaml_list = [
+        (os.path.join(YAML_DIR, "yaml_configs", "test_inside_threshold_sql.yaml"), {},),
         (
-            os.path.join(
-                YAML_DIR, "yaml_configs", "test_inside_threshold_sql.yaml"
-            ),
-            {},
-        ),
-        (
-            os.path.join(
-                YAML_DIR, "yaml_configs", "test_inside_threshold_values.yaml"
-            ),
+            os.path.join(YAML_DIR, "yaml_configs", "test_inside_threshold_values.yaml"),
             {},
         ),
     ]

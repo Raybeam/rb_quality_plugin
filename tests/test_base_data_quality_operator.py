@@ -15,9 +15,7 @@ def test_get_sql_value_one_result(mock_get_hook, mock_get_connection):
     mock_get_hook.return_value = mock_hook
 
     task = BaseDataQualityOperator(
-        task_id="one_result_task",
-        conn_id="test_id",
-        sql="SELECT COUNT(1) FROM test;",
+        task_id="one_result_task", conn_id="test_id", sql="SELECT COUNT(1) FROM test;",
     )
 
     result = task.get_sql_value(conn_id=task.conn_id, sql=task.sql)
@@ -34,9 +32,7 @@ def test_get_sql_value_not_one_result(mock_get_hook, mock_get_connection):
     mock_get_hook.return_value = mock_hook
 
     task = BaseDataQualityOperator(
-        task_id="one_result_task",
-        conn_id="test_id",
-        sql="SELECT COUNT(1) FROM test;",
+        task_id="one_result_task", conn_id="test_id", sql="SELECT COUNT(1) FROM test;",
     )
 
     with pytest.raises(ValueError):
@@ -52,9 +48,7 @@ def test_get_sql_value_no_result(mock_get_hook, mock_get_connection):
     mock_get_hook.return_value = mock_hook
 
     task = BaseDataQualityOperator(
-        task_id="one_result_task",
-        conn_id="test_id",
-        sql="SELECT COUNT(1) FROM test;",
+        task_id="one_result_task", conn_id="test_id", sql="SELECT COUNT(1) FROM test;",
     )
 
     with pytest.raises(ValueError):
@@ -70,9 +64,7 @@ def test_get_sql_value_multiple_results(mock_get_hook, mock_get_connection):
     mock_get_hook.return_value = mock_hook
 
     task = BaseDataQualityOperator(
-        task_id="one_result_task",
-        conn_id="test_id",
-        sql="SELECT COUNT(1) FROM test;",
+        task_id="one_result_task", conn_id="test_id", sql="SELECT COUNT(1) FROM test;",
     )
 
     with pytest.raises(ValueError):

@@ -61,9 +61,7 @@ class BaseDataQualityOperator(BaseOperator):
             self.dq_check_args = {}
 
         if check_description:
-            self.check_description = check_description.format(
-                **self.dq_check_args
-            )
+            self.check_description = check_description.format(**self.dq_check_args)
         else:
             self.check_description = check_description
 
@@ -110,9 +108,7 @@ class BaseDataQualityOperator(BaseOperator):
         Optional: Send data check info and metadata to an external database.
         Default functionality will log metadata.
         """
-        info = "\n".join(
-            [f"""{key}: {item}""" for key, item in info_dict.items()]
-        )
+        info = "\n".join([f"""{key}: {item}""" for key, item in info_dict.items()])
         log.info("Log from %s:\n%s", self.dag_id, info)
 
     def send_failure_notification(self, info_dict):
@@ -158,11 +154,7 @@ class BaseDataQualityOperator(BaseOperator):
         elif len(result) < 1:
             raise ValueError("No result returned from sql query")
         elif len(result[0]) != 1:
-            logging.info(
-                "Result: %s does not contain exactly 1 column", str(result[0])
-            )
-            raise ValueError(
-                "Result from sql query does not contain exactly 1 column"
-            )
+            logging.info("Result: %s does not contain exactly 1 column", str(result[0]))
+            raise ValueError("Result from sql query does not contain exactly 1 column")
         else:
             return result[0][0]
