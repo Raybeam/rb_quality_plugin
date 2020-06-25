@@ -34,21 +34,22 @@ class BaseDataQualityOperator(BaseOperator):
     :type check_args: dict
     """
 
-    template_fields = ['sql']
-    template_ext = ['.sql']
+    template_fields = ["sql"]
+    template_ext = [".sql"]
 
     @apply_defaults
-    def __init__(self,
-                 task_id,
-                 sql,
-                 conn_id,
-                 push_conn_id=None,
-                 check_description=None,
-                 use_legacy_sql=False,
-                 check_args=None,
-                 *args,
-                 **kwargs
-                 ):
+    def __init__(
+        self,
+        task_id,
+        sql,
+        conn_id,
+        push_conn_id=None,
+        check_description=None,
+        use_legacy_sql=False,
+        check_args=None,
+        *args,
+        **kwargs,
+    ):
         self.conn_id = conn_id
         self.push_conn_id = push_conn_id
         self.sql = sql
@@ -60,8 +61,7 @@ class BaseDataQualityOperator(BaseOperator):
             self.dq_check_args = {}
 
         if check_description:
-            self.check_description = check_description.format(
-                **self.dq_check_args)
+            self.check_description = check_description.format(**self.dq_check_args)
         else:
             self.check_description = check_description
 
@@ -108,8 +108,7 @@ class BaseDataQualityOperator(BaseOperator):
         Optional: Send data check info and metadata to an external database.
         Default functionality will log metadata.
         """
-        info = "\n".join([f"""{key}: {item}""" for key,
-                          item in info_dict.items()])
+        info = "\n".join([f"""{key}: {item}""" for key, item in info_dict.items()])
         log.info("Log from %s:\n%s", self.dag_id, info)
 
     def send_failure_notification(self, info_dict):
@@ -127,12 +126,14 @@ class BaseDataQualityOperator(BaseOperator):
             Result: {result} is not within thresholds {min_threshold}
                 and {max_threshold}
         """.format(
-            task_id=self.task_id, dag_id=self.dag_id,
-            description=info_dict.get("description"), sql=self.sql,
+            task_id=self.task_id,
+            dag_id=self.dag_id,
+            description=info_dict.get("description"),
+            sql=self.sql,
             execution_date=str(info_dict.get("execution_date")),
             result=round(info_dict.get("result"), 2),
             min_threshold=info_dict.get("min_threshold"),
-            max_threshold=info_dict.get("max_threshold")
+            max_threshold=info_dict.get("max_threshold"),
         )
         raise AirflowException(body)
 
@@ -142,21 +143,18 @@ class BaseDataQualityOperator(BaseOperator):
         The result of the sql query should be one and only one numeric value.
         """
         conn = BaseHook.get_connection(conn_id)
-        if conn.conn_type == 'google_cloud_platform':
+        if conn.conn_type == "google_cloud_platform":
             hook = BigQueryHook(conn_id, use_legacy_sql=self.use_legacy_sql)
         else:
             hook = BaseHook.get_hook(conn_id)
         result = hook.get_records(sql)
         if len(result) > 1:
             logging.info("Result: %s contains more than 1 entry", str(result))
-            raise ValueError(
-                "Result from sql query contains more than 1 entry")
+            raise ValueError("Result from sql query contains more than 1 entry")
         elif len(result) < 1:
             raise ValueError("No result returned from sql query")
         elif len(result[0]) != 1:
-            logging.info(
-                "Result: %s does not contain exactly 1 column", str(result[0]))
-            raise ValueError(
-                "Result from sql query does not contain exactly 1 column")
+            logging.info("Result: %s does not contain exactly 1 column", str(result[0]))
+            raise ValueError("Result from sql query does not contain exactly 1 column")
         else:
             return result[0][0]

@@ -3,8 +3,9 @@ import yaml
 from airflow import AirflowException
 from airflow.utils.decorators import apply_defaults
 
-from rb_quality_plugin.operators.base_data_quality_operator\
-    import BaseDataQualityOperator
+from rb_quality_plugin.operators.base_data_quality_operator import (
+    BaseDataQualityOperator,
+)
 
 
 class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
@@ -21,36 +22,34 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
     """
 
     @apply_defaults
-    def __init__(self,
-                 min_threshold=None,
-                 max_threshold=None,
-                 config_path=None,
-                 *args,
-                 **kwargs):
+    def __init__(
+        self, min_threshold=None, max_threshold=None, config_path=None, *args, **kwargs
+    ):
 
         self.dq_check_args = check_args
         defaults = {
-            'min_threshold': min_threshold,
-            'max_threshold': max_threshold,
+            "min_threshold": min_threshold,
+            "max_threshold": max_threshold,
         }
 
         if config_path:
             kwargs, defaults = self.read_from_config(config_path, kwargs, defaults)
 
-        self.min_threshold = defaults['min_threshold']
-        self.max_threshold = defaults['max_threshold']
+        self.min_threshold = defaults["min_threshold"]
+        self.max_threshold = defaults["max_threshold"]
 
         if self.max_threshold is None and self.min_threshold is None:
             raise AirflowException(
-                "At least a min threshold or a max threshold must be defined")
+                "At least a min threshold or a max threshold must be defined"
+            )
 
         super().__init__(*args, **kwargs)
 
     def option_between(self, value, low, high):
         if low is not None and value < low:
-              return False
+            return False
         if high is not None and value > high:
-              return False
+            return False
         return True
 
     def alert(self, context, result, min_threshold, max_threshold):
@@ -63,7 +62,7 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
             "execution_date": str(context.get("execution_date")),
             "min_threshold": min_threshold,
             "max_threshold": max_threshold,
-            "within_threshold": within_threshold
+            "within_threshold": within_threshold,
         }
 
         self.push(info_dict)
@@ -73,7 +72,6 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
         return info_dict
 
     def execute(self, context):
-        result = self.get_sql_value(
-            self.conn_id, self.sql.format(**self.dq_check_args))
+        result = self.get_sql_value(self.conn_id, self.sql.format(**self.dq_check_args))
 
         return self.alert(context, result, self.min_threshold, self.max_threshold)

@@ -5,22 +5,24 @@ import pytest
 import airflow
 from airflow import AirflowException
 from airflow.utils.state import State
-from rb_quality_plugin.operators.data_quality_threshold_sql_check_operator\
-    import DataQualityThresholdSQLCheckOperator
+from rb_quality_plugin.operators.data_quality_threshold_sql_check_operator import (
+    DataQualityThresholdSQLCheckOperator,
+)
 from airflow.models import TaskInstance
 
 DEFAULT_DATE = datetime.now()
-DAG = airflow.DAG("TEST_DAG_ID",
-                  schedule_interval='@daily',
-                  default_args={'start_date': DEFAULT_DATE})
+DAG = airflow.DAG(
+    "TEST_DAG_ID", schedule_interval="@daily", default_args={"start_date": DEFAULT_DATE}
+)
 
 
 def get_val_from_sql(val, sql):
     return int(sql)
 
 
-def _construct_task(min_threshold_sql=None, max_threshold_sql=None,
-                    sql='SELECT;', check_args={}):
+def _construct_task(
+    min_threshold_sql=None, max_threshold_sql=None, sql="SELECT;", check_args={}
+):
     task = DataQualityThresholdSQLCheckOperator(
         task_id="test_dq_check",
         conn_id="test_id",
@@ -28,13 +30,13 @@ def _construct_task(min_threshold_sql=None, max_threshold_sql=None,
         check_args=check_args,
         min_threshold_sql=min_threshold_sql,
         max_threshold_sql=max_threshold_sql,
-        dag=DAG
+        dag=DAG,
     )
 
     return task
 
 
-@mock.patch.object(DataQualityThresholdSQLCheckOperator, 'get_sql_value')
+@mock.patch.object(DataQualityThresholdSQLCheckOperator, "get_sql_value")
 def test_inside_threshold_eval(mock_get_sql_value):
     mock_get_sql_value.side_effect = get_val_from_sql
     min_threshold_sql = "10"
@@ -44,19 +46,19 @@ def test_inside_threshold_eval(mock_get_sql_value):
     task = _construct_task(
         min_threshold_sql=min_threshold_sql,
         max_threshold_sql=max_threshold_sql,
-        sql=sql
+        sql=sql,
     )
 
     task.push = mock.Mock(return_value=None)
     task_instance = TaskInstance(task=task, execution_date=DEFAULT_DATE)
     task_instance.run(ignore_ti_state=True)
-    res = task_instance.xcom_pull(task_ids='test_dq_check')
+    res = task_instance.xcom_pull(task_ids="test_dq_check")
 
-    assert res['within_threshold']
+    assert res["within_threshold"]
     assert task_instance.state == State.SUCCESS
 
 
-@mock.patch.object(DataQualityThresholdSQLCheckOperator, 'get_sql_value')
+@mock.patch.object(DataQualityThresholdSQLCheckOperator, "get_sql_value")
 def test_outside_threshold_eval(mock_get_sql_value):
     mock_get_sql_value.side_effect = get_val_from_sql
     min_threshold_sql = "2"
@@ -66,7 +68,7 @@ def test_outside_threshold_eval(mock_get_sql_value):
     task = _construct_task(
         min_threshold_sql=min_threshold_sql,
         max_threshold_sql=max_threshold_sql,
-        sql=sql
+        sql=sql,
     )
 
     task.push = mock.Mock(return_value=None)
@@ -75,13 +77,13 @@ def test_outside_threshold_eval(mock_get_sql_value):
     with pytest.raises(AirflowException):
         task_instance.run(ignore_ti_state=True)
 
-    res = task_instance.xcom_pull(task_ids='test_dq_check')
+    res = task_instance.xcom_pull(task_ids="test_dq_check")
 
-    assert not res['within_threshold']
+    assert not res["within_threshold"]
     assert task_instance.state == State.FAILED
 
 
-@mock.patch.object(DataQualityThresholdSQLCheckOperator, 'get_sql_value')
+@mock.patch.object(DataQualityThresholdSQLCheckOperator, "get_sql_value")
 def test_one_threshold_eval(mock_get_sql_value):
     mock_get_sql_value.side_effect = get_val_from_sql
     min_threshold_sql = None
@@ -91,19 +93,19 @@ def test_one_threshold_eval(mock_get_sql_value):
     task = _construct_task(
         min_threshold_sql=min_threshold_sql,
         max_threshold_sql=max_threshold_sql,
-        sql=sql
+        sql=sql,
     )
 
     task.push = mock.Mock(return_value=None)
     task_instance = TaskInstance(task=task, execution_date=DEFAULT_DATE)
     task_instance.run(ignore_ti_state=True)
-    res = task_instance.xcom_pull(task_ids='test_dq_check')
+    res = task_instance.xcom_pull(task_ids="test_dq_check")
 
-    assert res['min_threshold'] is None
+    assert res["min_threshold"] is None
     assert task_instance.state == State.SUCCESS
 
 
-@mock.patch.object(DataQualityThresholdSQLCheckOperator, 'get_sql_value')
+@mock.patch.object(DataQualityThresholdSQLCheckOperator, "get_sql_value")
 def test_threshold_check_args(mock_get_sql_value):
     mock_get_sql_value.side_effect = get_val_from_sql
     min_threshold_sql = "0"
@@ -115,16 +117,16 @@ def test_threshold_check_args(mock_get_sql_value):
         min_threshold_sql=min_threshold_sql,
         max_threshold_sql=max_threshold_sql,
         sql=sql,
-        check_args=check_args
+        check_args=check_args,
     )
 
     task.push = mock.Mock(return_value=None)
     task_instance = TaskInstance(task=task, execution_date=DEFAULT_DATE)
     task_instance.run(ignore_ti_state=True)
-    res = task_instance.xcom_pull(task_ids='test_dq_check')
+    res = task_instance.xcom_pull(task_ids="test_dq_check")
 
-    assert res['max_threshold'] == 100
-    assert res['result'] == 10
+    assert res["max_threshold"] == 100
+    assert res["result"] == 10
     assert task_instance.state == State.SUCCESS
 
 
@@ -137,5 +139,5 @@ def test_no_thresholds_eval():
         _construct_task(
             min_threshold_sql=min_threshold_sql,
             max_threshold_sql=max_threshold_sql,
-            sql=sql
+            sql=sql,
         )

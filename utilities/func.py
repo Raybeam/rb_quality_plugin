@@ -4,5 +4,7 @@ def map_opt_arg(arg):
             if args[arg] is None:
                 return None
             return func(*args)
+
         return wrapped
+
     return decor
