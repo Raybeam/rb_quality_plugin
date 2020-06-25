@@ -27,8 +27,10 @@ class BaseDataQualityOperator(BaseOperator):
     :param check_description: (optional) description of data quality
         sql statement
     :type check_description: str
-    :param use_legacy_sql: For BigQuery StandardSQL or LegacySQL
+    :param use_legacy_sql: (optional) For BigQuery StandardSQL or LegacySQL
     :type use_legacy_sql: bool
+    :param message_writer: (optional)
+    :type message_writer: MessageWriter
     :param check_args: dq parameters for sql evaluation
     :type check_args: dict
     """
@@ -44,6 +46,7 @@ class BaseDataQualityOperator(BaseOperator):
                  push_conn_id=None,
                  check_description=None,
                  use_legacy_sql=False,
+                 message_writer=None,
                  check_args=None,
                  *args,
                  **kwargs
@@ -52,6 +55,7 @@ class BaseDataQualityOperator(BaseOperator):
         self.push_conn_id = push_conn_id
         self.sql = sql
         self.use_legacy_sql = use_legacy_sql
+        self.message_writer = message_writer
 
         if check_args:
             self.dq_check_args = check_args
@@ -71,14 +75,19 @@ class BaseDataQualityOperator(BaseOperator):
         """Method where data quality check is performed """
         raise NotImplementedError
 
-    def push(self, info_dict):
+    def push(self, info_ordereddict):
         """
         Optional: Send data check info and metadata to an external database.
         Default functionality will log metadata.
+
+        Note that the info dictionary sent must be ordered to ensure
+        correct insertion into tables requiring specific column order.
         """
         info = "\n".join([f"""{key}: {item}""" for key,
-                          item in info_dict.items()])
+                          item in info_ordereddict.items()])
         log.info("Log from %s:\n%s", self.dag_id, info)
+        if self.message_writer:
+            self.message_writer.send_message(info_ordereddict)
 
     def send_failure_notification(self, info_dict):
         """
