@@ -5,6 +5,10 @@ from airflow.utils.decorators import apply_defaults
 
 from rb_quality_plugin.operators.data_quality_threshold_check_operator\
     import DataQualityThresholdCheckOperator
+from rb_quality_plugin.operators.base_data_quality_operator\
+    import BaseDataQualityOperator
+
+from rb_quality_plugin.utilities import func
 
 
 class DataQualityThresholdSQLCheckOperator(DataQualityThresholdCheckOperator):
@@ -49,6 +53,7 @@ class DataQualityThresholdSQLCheckOperator(DataQualityThresholdCheckOperator):
             'max_threshold_sql': max_threshold_sql,
             'threshold_conn_id': threshold_conn_id,
         }
+
         if config_path:
             kwargs, defaults = self.read_from_config(config_path, kwargs, defaults)
 
@@ -60,18 +65,15 @@ class DataQualityThresholdSQLCheckOperator(DataQualityThresholdCheckOperator):
             raise AirflowException(
                 "At least a min or max threshold must be defined")
 
-        super().__init__(*args, **kwargs)
+        BaseDataQualityOperator.__init__(self, *args, **kwargs)
+
+    @func.map_opt_arg(1)
+    def get_formatted_value(self, sql):
+         return self.get_sql_value(self.threshold_conn_id, sql.format(**self.dq_check_args))
 
     def execute(self, context):
-        min_threshold = self.get_sql_value(
-            self.threshold_conn_id,
-            self.min_threshold_sql, self.dq_check_args)
-
-        max_threshold = self.get_sql_value(
-            self.threshold_conn_id,
-            self.max_threshold_sql, self.dq_check_args)
-
-        result = self.get_sql_value(
-            self.conn_id, self.sql, self.dq_check_args)
+        min_threshold = self.get_formatted_value(self.min_threshold_sql)
+        max_threshold = self.get_formatted_value(self.max_threshold_sql)
+        result = self.get_formatted_value(self.sql)
 
         return self.alert(context, result, min_threshold, max_threshold)

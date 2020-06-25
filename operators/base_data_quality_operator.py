@@ -118,16 +118,11 @@ class BaseDataQualityOperator(BaseOperator):
         )
         raise AirflowException(body)
 
-    def get_sql_value(self, conn_id, sql, format_args):
+    def get_sql_value(self, conn_id, sql):
         """
         get_sql_value executes a sql query given proper connection parameters.
         The result of the sql query should be one and only one numeric value.
         """
-        if sql is None:
-          return None
-
-        sql = sql.format(**format_args)
-
         conn = BaseHook.get_connection(conn_id)
         if conn.conn_type == 'google_cloud_platform':
             hook = BigQueryHook(conn_id, use_legacy_sql=self.use_legacy_sql)

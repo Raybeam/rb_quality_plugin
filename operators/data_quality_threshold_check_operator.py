@@ -76,6 +76,6 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
 
     def execute(self, context):
         result = self.get_sql_value(
-            self.conn_id, self.sql, self.dq_check_args)
+            self.conn_id, self.sql.format(**self.dq_check_args))
 
         return self.alert(context, result, self.min_threshold, self.max_threshold)
