@@ -19,8 +19,6 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
     :type max_threshold: numeric
     :param config_path: path to yaml configuration file
     :type config_path: str
-    :param check_args: dq parameters for sql evaluation
-    :type check_args: dict
     """
 
     @apply_defaults
@@ -28,11 +26,9 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
                  min_threshold=None,
                  max_threshold=None,
                  config_path=None,
-                 check_args={},
                  *args,
                  **kwargs):
 
-        self.dq_check_args = check_args
         if config_path:
             with open(config_path) as configs:
                 dq_configs = yaml.safe_load(configs)
