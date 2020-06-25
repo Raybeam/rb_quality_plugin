@@ -1,5 +1,3 @@
-import yaml
-
 from airflow import AirflowException
 from airflow.utils.decorators import apply_defaults
 
