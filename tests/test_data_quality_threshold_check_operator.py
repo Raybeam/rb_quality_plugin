@@ -12,7 +12,9 @@ from airflow.models import TaskInstance
 
 DEFAULT_DATE = datetime.now()
 DAG = airflow.DAG(
-    "TEST_DAG_ID", schedule_interval="@daily", default_args={"start_date": DEFAULT_DATE}
+    "TEST_DAG_ID",
+    schedule_interval="@daily",
+    default_args={"start_date": DEFAULT_DATE},
 )
 
 

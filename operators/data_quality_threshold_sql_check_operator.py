@@ -55,14 +55,18 @@ class DataQualityThresholdSQLCheckOperator(DataQualityThresholdCheckOperator):
         }
 
         if config_path:
-            kwargs, defaults = self.read_from_config(config_path, kwargs, defaults)
+            kwargs, defaults = self.read_from_config(
+                config_path, kwargs, defaults
+            )
 
         self.min_threshold_sql = defaults["min_threshold_sql"]
         self.max_threshold_sql = defaults["max_threshold_sql"]
         self.threshold_conn_id = defaults["threshold_conn_id"]
 
         if not (self.max_threshold_sql or self.min_threshold_sql):
-            raise AirflowException("At least a min or max threshold must be defined")
+            raise AirflowException(
+                "At least a min or max threshold must be defined"
+            )
 
         BaseDataQualityOperator.__init__(self, *args, **kwargs)
 

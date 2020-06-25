@@ -42,11 +42,16 @@ def create_dq_checks_from_list(dag, dq_check_list):
             if dq_type in DQ_OPERATORS:
                 dq_operator = DQ_OPERATORS[dq_type]
                 task = dq_operator(
-                    config_path=dq_config_path, check_args=dq_check_args, dag=dag
+                    config_path=dq_config_path,
+                    check_args=dq_check_args,
+                    dag=dag,
                 )
                 dq_check_tasks.append(task)
             else:
-                log.info("Type: %s not a DQ Operator... Skipping DQ creation", dq_type)
+                log.info(
+                    "Type: %s not a DQ Operator... Skipping DQ creation",
+                    dq_type,
+                )
         else:
             log.info(
                 "File: %s does not contain 'type'... Skipping DQ creation",
@@ -56,7 +61,9 @@ def create_dq_checks_from_list(dag, dq_check_list):
     return dq_check_tasks
 
 
-def create_dq_checks_from_directory(dag, dq_check_dir, dq_check_args={}, rec=True):
+def create_dq_checks_from_directory(
+    dag, dq_check_dir, dq_check_args={}, rec=True
+):
     """
     Creates list of dq check tasks for all configurations in directory, with
     option to recursively search through sub directories for dq config files

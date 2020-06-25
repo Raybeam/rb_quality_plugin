@@ -7,8 +7,12 @@ from airflow import DAG
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.postgres_operator import PostgresOperator
 
-from rb_quality_plugin.utilities.dq_check_tools import create_dq_checks_from_directory
-from rb_quality_plugin.utilities.dq_check_tools import create_dq_checks_from_list
+from rb_quality_plugin.utilities.dq_check_tools import (
+    create_dq_checks_from_directory,
+)
+from rb_quality_plugin.utilities.dq_check_tools import (
+    create_dq_checks_from_list,
+)
 
 default_args = {
     "owner": "airflow",
@@ -38,7 +42,9 @@ YAML_LIST = [
 ]
 
 dag = DAG(
-    "yaml_data_quality_check_dag", default_args=default_args, schedule_interval=None
+    "yaml_data_quality_check_dag",
+    default_args=default_args,
+    schedule_interval=None,
 )
 
 dq_check_tasks = create_dq_checks_from_directory(
