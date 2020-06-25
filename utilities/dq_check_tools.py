@@ -42,7 +42,7 @@ def create_dq_checks_from_list(dag, dq_check_list):
             if dq_type in DQ_OPERATORS:
                 dq_operator = DQ_OPERATORS[dq_type]
                 task = dq_operator(
-                    config_path=dq_config_path, check_args=dq_check_args, dag=dag,
+                    config_path=dq_config_path, check_args=dq_check_args, dag=dag
                 )
                 dq_check_tasks.append(task)
             else:
