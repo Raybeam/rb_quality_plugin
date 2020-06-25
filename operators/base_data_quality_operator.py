@@ -71,15 +71,17 @@ class BaseDataQualityOperator(BaseOperator):
     def read_from_config(self, config_path, operator_kwargs, defaults):
         """
         Reads configuration data from the yaml file at the provided config_path.
-        For each key present in the file and defaults, it overwrites the value in defaults when None.
-        Combines the remaining yaml data and operator_kwargs.
-        Returns the updated dicts in order given.
+        For each key present in the file and defaults, it overwrites the value
+        in defaults when None. Combines the remaining yaml data and
+        operator_kwargs. Returns the updated dicts in order given.
 
         :param config_path: Path to a yaml file
         :type config_path: str
         :param operator_kwargs: The kwargs pass to the operator when constructed.
         :type operator_kwargs: dict
-        :param defaults: The keys we want to extract out of the yaml with any values we want to maintain. Keys to extract and always use should be assigned the value None.
+        :param defaults: The keys we want to extract out of the yaml with any values
+            we want to maintain. Keys to extract and always use should be assigned
+            the value None.
         :type defaults: dict
         :return: The provided dicts updated with values from the parsed yaml file.
         """

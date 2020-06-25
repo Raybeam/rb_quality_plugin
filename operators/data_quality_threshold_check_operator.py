@@ -1,5 +1,3 @@
-import yaml
-
 from airflow import AirflowException
 from airflow.utils.decorators import apply_defaults
 
@@ -25,8 +23,6 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
     def __init__(
         self, min_threshold=None, max_threshold=None, config_path=None, *args, **kwargs
     ):
-
-        self.dq_check_args = check_args
         defaults = {
             "min_threshold": min_threshold,
             "max_threshold": max_threshold,
