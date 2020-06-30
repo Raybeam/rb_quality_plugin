@@ -1,5 +1,6 @@
 # rb_plugin_template
-A template repository for Raybeam's Airflow Plugins  
+A template repository for Raybeam's Airflow Plugins.  
+Replace `rb_plugin_template` with the name of your plugin's repository.  
   
 Description about plugin here.  
 # Set up
@@ -20,10 +21,16 @@ The deployment environments are:
 Clone plugin into local workspace  
 ```
 git clone https://github.com/Raybeam/rb_plugin_template plugins/rb_plugin_template
+```  
+  
+Clone deploy script into local workspace  
 ```
-Run plugin's deploy script.  
+git clone https://github.com/Raybeam/rb_plugin_deploy plugins/rb_plugin_deploy
+```  
+  
+Run deploy script.  
 ```
-./plugins/rb_plugin_template/deploy.sh
+./plugins/rb_plugin_deploy/deploy.sh
 ```
   
 ## Set up : Local Deploy
