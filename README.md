@@ -52,9 +52,6 @@ By putting the `AIRFLOW_HOME` env in the `bin/activate` file, you set the path e
 ### Initialize your Airflow DB
 `> airflow initdb`
 
-### Set up a user (admin:admin)
-`> airflow create_user -r Admin -u admin -e admin@example.com -f admin -l user -p admin`
-
 ### Clone the plugin into your plugins
 `> git clone https://github.com/Raybeam/rb_plugin_template plugins/rb_plugin_template`
 
@@ -73,6 +70,9 @@ Move over the samples (if wanted)
 
 ### Enable rbac
 In the root directory of your airflow workspace, open airflow.cfg and set `rbac=True`.
+
+### Set up a user (admin:admin)
+`> airflow create_user -r Admin -u admin -e admin@example.com -f admin -l user -p admin`
 
 ### Turn on Webserver
 `>airflow webserver`

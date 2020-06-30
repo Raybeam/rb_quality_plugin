@@ -102,7 +102,10 @@ def init(args):
 
         logging.info(f"Copying dags from {setup_path} to {dags_folder}")
         if not args.dry:
-            copytree(os.path.join(setup_path, "dags"), os.path.join(dags_folder, f"{plugin_name}_example_dags"))
+            copytree(
+                os.path.join(setup_path, "dags"),
+                os.path.join(dags_folder, f"{plugin_name}_example_dags"),
+            )
 
         if not os.path.isdir(os.path.join(dags_folder, f"{plugin_name}_example_dags")):
             err = (
@@ -141,7 +144,10 @@ def add_sample_dag(setup_path, args):
 
     logging.info("Adding sample DAG to DAGs folder")
     if not args.dry:
-        copytree(os.path.join(setup_path, "dags"), os.path.join(dags_folder, f"{plugin_name}_example_dags"))
+        sample_dags_dst = os.path.join(dags_folder, f"{plugin_name}_example_dags")
+        if not os.path.exists(sample_dags_dst):
+            os.makedirs(sample_dags_dst)
+        copytree(os.path.join(setup_path, "dags"), sample_dags_dst)
 
     if not os.path.isdir(os.path.join(dags_folder, f"{plugin_name}_example_dags")):
         err = (
