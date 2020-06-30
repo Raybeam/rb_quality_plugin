@@ -1,8 +1,6 @@
 # rb_plugin_template
-A template repository for Raybeam's Airflow Plugins.  
-Replace `rb_plugin_template` with the name of your plugin's repository.  
+Replace all appearances of `rb_plugin_template` with the name of your plugin's repository, and update this section with a description about the plugin.  
   
-Description about plugin here.  
 # Set up
 These are instructions for importing this plugin into an existing airflow workspace.  
 To start, navigate to the root of your airflow workspace.  
