@@ -18,7 +18,7 @@ jobs:
           python3 -m venv ~/.venv
           . ~/.venv/bin/activate
           pip3 install --upgrade pip
-          pip3 install apache-airflow
+          pip3 install --upgrade apache-airflow
           pip3 install -r requirements.txt
         name: Setup venv
     - save_cache:
@@ -80,7 +80,10 @@ jobs:
           cd /home/circleci/rb_test_airflow
           export AIRFLOW_HOME=$PWD
           cp ~/project/.circleci/airflow.cfg $AIRFLOW_HOME/airflow.cfg
-          airflow initdb  &> /dev/null
+          echo "Attempting to initialize airflow..."
+          airflow initdb &> /dev/null || true
+          airflow initdb
+          echo "Airflow initialized successfully."
           airflow create_user -r Admin -u admin -e admin@example.com -f admin -l user -p admin
           schedule_airflow="airflow scheduler"
           webserve_airflow="airflow webserver"
@@ -102,6 +105,12 @@ jobs:
               fi
             fi
           done
+          pytest  /home/circleci/rb_test_airflow/plugins/${CIRCLE_PROJECT_REPONAME}/tests -m compatibility || ret=$?
+          if [ -n "$ret" ]; then
+            if ! [[ "05" =~ "$ret" ]]; then
+              exit "$ret"
+            fi
+          fi
           set +e
         name: Start Airflow and run all plugins compatibility tests
     - run:
