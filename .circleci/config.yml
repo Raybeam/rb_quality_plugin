@@ -28,7 +28,7 @@ jobs:
     - run:
         command: |-
           . ~/.venv/bin/activate
-          flake8 --config=/home/circleci/projects/.flake8
+          flake8
         name: Run flake8 linter
     - run:
         command: |-
@@ -63,8 +63,13 @@ jobs:
             if [[ $line =~ "["*"]"  ]]; then
               plugin_name=${line#*\[}
               plugin_name=${plugin_name%\]*}
-              git clone https://github.com/Raybeam/$plugin_name /home/circleci/rb_test_airflow/plugins/$plugin_name
-              pip3 install -r /home/circleci/rb_test_airflow/plugins/$plugin_name/requirements.txt
+              if [[ $plugin_name != ${CIRCLE_PROJECT_REPONAME} ]]; then
+                git clone https://github.com/Raybeam/$plugin_name /home/circleci/rb_test_airflow/plugins/$plugin_name
+                pip3 install -r /home/circleci/rb_test_airflow/plugins/$plugin_name/requirements.txt
+                if [[ -f "/home/circleci/rb_test_airflow/plugins/$plugin_name/bin/setup" ]]; then
+                  home/circleci/rb_test_airflow/plugins/$plugin_name/bin/setup init
+                fi
+              fi
             fi
           done
         name: Clone rb airflow plugins and install their requirements
@@ -72,6 +77,8 @@ jobs:
         command: |-
           . ~/.venv/bin/activate
           cp -r /home/circleci/project/ /home/circleci/rb_test_airflow/plugins/${CIRCLE_PROJECT_REPONAME}
+          pip3 install -r /home/circleci/rb_test_airflow/plugins/${CIRCLE_PROJECT_REPONAME} iiii/requirements.txt
+          home/circleci/rb_test_airflow/plugins/${CIRCLE_PROJECT_REPONAME}/bin/setup init
           pytest  /home/circleci/rb_test_airflow/plugins/${CIRCLE_PROJECT_REPONAME}/tests/ -m "not compatibility"
         name: Run current plugin's unittests
     - run:
@@ -128,8 +135,33 @@ jobs:
           echo "uname:" $(uname -a)
           echo "arch: " $(arch)
         name: Show system information
+  jsbuild:
+    docker:
+    - image: circleci/node:12
+    steps:
+    - checkout
+    - restore_cache:
+        keys:
+          - rb-node-dependencies-{{ checksum "package.json" }}
+          # fallback to using the latest cache if no exact match is found
+          - rb-node-dependencies-
+    - run:
+        command: npm ci
+        name: Install Node dependencies
+    - save_cache:
+        paths:
+          - node_modules
+        key: rb-node-dependencies-{{ checksum "package.json" }}
+    - run:
+        command: npm run lint
+        name: Run ESLint
+    - run:
+        command: npm run build
+        name: Build JS for production
 workflows:
   test:
     jobs:
     - build
+    - jsbuild
   version: 2
+
