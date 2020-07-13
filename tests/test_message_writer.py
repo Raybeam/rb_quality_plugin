@@ -7,6 +7,7 @@ from rb_quality_plugin.core.message_writers.bigquery_writer import BigQueryWrite
 from rb_quality_plugin.core.message_writers.multi_writer import MultiWriter
 
 
+@pytest.mark.compatibility
 def test_message_writer():
     writer = MessageWriter()
     with pytest.raises(NotImplementedError):
@@ -17,6 +18,7 @@ def test_message_writer():
             autospec=True)
 @mock.patch('rb_quality_plugin.core.message_writers.bigquery_writer.Client',
             autospec=True)
+@pytest.mark.compatibility
 def test_bigquery_writer(mock_client, mock_hook):
     """
     Mock the BigQuery connection and ensure that the correct info is passed
@@ -40,6 +42,7 @@ def test_bigquery_writer(mock_client, mock_hook):
 
 
 @mock.patch.object(MessageWriter, 'send_message')
+@pytest.mark.compatibility
 def test_multiwriter(mock_send_message):
     """
     Test that the message sent by MultiWriter gets sent to all writers.

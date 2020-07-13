@@ -22,6 +22,7 @@ YAML_DIR = os.path.join(
     plugins_folder, "rb_quality_plugin", "tests", "configs")
 
 
+@pytest.mark.compatibility
 def test_create_dq_checks_from_directory_with_recursion():
     task_list = create_dq_checks_from_directory(DAG, YAML_DIR)
     assert len(task_list) == 4
@@ -35,11 +36,13 @@ def test_create_dq_checks_from_directory_with_recursion():
     assert op_types[DataQualityThresholdSQLCheckOperator] == 2
 
 
+@pytest.mark.compatibility
 def test_create_dq_checks_from_directory_no_recursion():
     task_list = create_dq_checks_from_directory(DAG, YAML_DIR, rec=False)
     assert len(task_list) == 0
 
 
+@pytest.mark.compatibility
 def test_create_dq_checks_from_list():
     yaml_list = [
         (os.path.join(YAML_DIR, 'yaml_configs',

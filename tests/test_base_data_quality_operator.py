@@ -7,6 +7,7 @@ from rb_quality_plugin.operators.base_data_quality_operator\
 
 @mock.patch.object(BaseHook, 'get_connection')
 @mock.patch.object(BaseHook, 'get_hook')
+@pytest.mark.compatibility
 def test_get_sql_value_one_result(mock_get_hook, mock_get_connection):
     mock_get_connection.conn_type = 'id'
     mock_hook = mock.Mock()
@@ -29,6 +30,7 @@ def test_get_sql_value_one_result(mock_get_hook, mock_get_connection):
 
 @mock.patch.object(BaseHook, 'get_connection')
 @mock.patch.object(BaseHook, 'get_hook')
+@pytest.mark.compatibility
 def test_get_sql_value_not_one_result(mock_get_hook, mock_get_connection):
     mock_get_connection.conn_type = 'id'
     mock_hook = mock.Mock()
@@ -50,6 +52,7 @@ def test_get_sql_value_not_one_result(mock_get_hook, mock_get_connection):
 
 @mock.patch.object(BaseHook, 'get_connection')
 @mock.patch.object(BaseHook, 'get_hook')
+@pytest.mark.compatibility
 def test_get_sql_value_no_result(mock_get_hook, mock_get_connection):
     mock_get_connection.conn_type = 'id'
     mock_hook = mock.Mock()
@@ -71,6 +74,7 @@ def test_get_sql_value_no_result(mock_get_hook, mock_get_connection):
 
 @mock.patch.object(BaseHook, 'get_connection')
 @mock.patch.object(BaseHook, 'get_hook')
+@pytest.mark.compatibility
 def test_get_sql_value_multiple_results(mock_get_hook, mock_get_connection):
     mock_get_connection.conn_type = 'id'
     mock_hook = mock.Mock()
