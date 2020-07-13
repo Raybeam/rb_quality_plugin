@@ -7,3 +7,4 @@ flake8
 httplib2
 pandas_gbq
 pytest
+pytest-mocker
