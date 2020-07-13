@@ -98,7 +98,7 @@ The parameters used are:
 ### YAML Usage 
 Both operators have the capability to read in YAML configurations by passing the path as the parameter `config_path`. Examples of configuration files can be found in [`/setup/dags/yaml_dq_check_dag/yaml_configs/`](/setup/dags/yaml_dq_check_dag/yaml_configs/). 
 
-With the implementation of configuration file input, [`dq_check_tools.py`](setup/dags/utilities/dq_check_tools.py) utilizes this function to dynamically add dq operators to a DAG. There are two methods in this tool: 
+With the implementation of configuration file input, [`dq_check_tools.py`](core/utilities/dq_check_tools.py) utilizes this function to dynamically add dq operators to a DAG. There are two methods in this tool: 
 1. `create_dq_checks_from_directory()` - Collects all dq checks in a directory, with the option to recurse through sub-directories.
 2. `create_dq_checks_from_list()` - Collects all dq checks config files passed through by a list of YAML paths.
 

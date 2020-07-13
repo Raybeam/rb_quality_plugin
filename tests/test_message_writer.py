@@ -2,9 +2,9 @@ from collections import OrderedDict
 from unittest import mock
 import pytest
 
-from rb_quality_plugin.message_writers.message_writer import MessageWriter
-from rb_quality_plugin.message_writers.bigquery_writer import BigQueryWriter
-from rb_quality_plugin.message_writers.multi_writer import MultiWriter
+from rb_quality_plugin.core.message_writers.message_writer import MessageWriter
+from rb_quality_plugin.core.message_writers.bigquery_writer import BigQueryWriter
+from rb_quality_plugin.core.message_writers.multi_writer import MultiWriter
 
 
 def test_message_writer():
@@ -13,9 +13,9 @@ def test_message_writer():
         writer.send_message([{'a': 1}])
 
 
-@mock.patch('rb_quality_plugin.message_writers.bigquery_writer.BigQueryHook',
+@mock.patch('rb_quality_plugin.core.message_writers.bigquery_writer.BigQueryHook',
             autospec=True)
-@mock.patch('rb_quality_plugin.message_writers.bigquery_writer.Client',
+@mock.patch('rb_quality_plugin.core.message_writers.bigquery_writer.Client',
             autospec=True)
 def test_bigquery_writer(mock_client, mock_hook):
     """

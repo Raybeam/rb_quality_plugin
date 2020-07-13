@@ -1,4 +1,4 @@
-from rb_quality_plugin.message_writers.message_writer import MessageWriter
+from rb_quality_plugin.core.message_writers.message_writer import MessageWriter
 
 
 class MultiWriter(MessageWriter):
