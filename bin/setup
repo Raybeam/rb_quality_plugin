@@ -167,10 +167,11 @@ if __name__ == "__main__":
         os.environ["KRB5_KTNAME"] = conf.get("kerberos", "keytab")
 
     parser = argparse.ArgumentParser(
-        description="""
-    This plugin does X.  To operate, it needs
-    to include a file in the DAGs folder.  A sample DAG is also provided if you'd like
-    to get some sample data in the Airflow DB in order to try the plugin out.
+        description=f"""
+    { plugin_name } is an Airflow module that includes operators to perform data quality checks.
+    This module includes an Airflow operator that periodically check the results of a query and
+    validates it against a specified threshold. A few sample DAGs are also provided if you'd like
+    to try the plugin out.
     """
     )
     subparsers = parser.add_subparsers()
