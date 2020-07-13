@@ -11,7 +11,7 @@ import sys
 from airflow.configuration import conf
 from airflow.models import Variable
 
-plugin_name = "rb_status_plugin"
+plugin_name = "rb_quality_plugin"
 
 manual_instructions = f"""
     MANUAL SETUP INSTRUCTIONS:

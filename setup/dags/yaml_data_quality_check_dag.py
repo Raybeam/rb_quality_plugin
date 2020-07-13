@@ -25,7 +25,7 @@ plugins_folder = conf.get("core", "plugins_folder")
 YAML_DIR = os.path.join(
     plugins_folder, "rb_quality_plugin", "tests", "configs")
 OTHER_YAML_DIR = os.path.join(
-    plugins_folder, "rb_quality_plugin", "example_dags",
+    plugins_folder, "rb_quality_plugin", "setup", "dags",
     "yaml_dq_check_dag", "yaml_configs"
 )
 

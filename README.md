@@ -96,14 +96,14 @@ The parameters used are:
 
 
 ### YAML Usage 
-Both operators have the capability to read in YAML configurations by passing the path as the parameter `config_path`. Examples of configuration files can be found in [`example_dags/yaml_dq_check_dag/yaml_configs/`](/example_dags/yaml_dq_check_dag/yaml_configs/). 
+Both operators have the capability to read in YAML configurations by passing the path as the parameter `config_path`. Examples of configuration files can be found in [`/setup/dags/yaml_dq_check_dag/yaml_configs/`](/setup/dags/yaml_dq_check_dag/yaml_configs/). 
 
-With the implementation of configuration file input, [`dq_check_tools.py`](example_dags/utilities/dq_check_tools.py) utilizes this function to dynamically add dq operators to a DAG. There are two methods in this tool: 
+With the implementation of configuration file input, [`dq_check_tools.py`](setup/dags/utilities/dq_check_tools.py) utilizes this function to dynamically add dq operators to a DAG. There are two methods in this tool: 
 1. `create_dq_checks_from_directory()` - Collects all dq checks in a directory, with the option to recurse through sub-directories.
 2. `create_dq_checks_from_list()` - Collects all dq checks config files passed through by a list of YAML paths.
 
 ### Examples
-Example DAG usages are also provided in this package located in the [`example_dags/`](example_dags/) directory. This directory includes examples for both types of Threshold Check Operators and the YAML data quality check tools.
+Example DAG usages are also provided in this package located in the [`setup/dags/`](setup/dags/) directory. This directory includes examples for both types of Threshold Check Operators and the YAML data quality check tools.
 
 ## Tests
 Tests can be found [here](tests/). Test directory gives an outline of each test file and the purpose of each. Additionally, it contains test configurations such as a sql script that creates test tables and configuration YAML files.
