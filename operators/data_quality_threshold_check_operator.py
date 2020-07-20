@@ -5,6 +5,8 @@ from rb_quality_plugin.operators.base_data_quality_operator import (
     BaseDataQualityOperator,
 )
 
+from rb_quality_plugin.utilities import func
+
 
 class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
     """
@@ -41,15 +43,9 @@ class DataQualityThresholdCheckOperator(BaseDataQualityOperator):
 
         super().__init__(*args, **kwargs)
 
-    def option_between(self, value, low, high):
-        if low is not None and value < low:
-            return False
-        if high is not None and value > high:
-            return False
-        return True
 
     def alert(self, context, result, min_threshold, max_threshold):
-        within_threshold = self.option_between(result, min_threshold, max_threshold)
+        within_threshold = func.option_between(result, min_threshold, max_threshold)
 
         info_dict = {
             "result": result,
