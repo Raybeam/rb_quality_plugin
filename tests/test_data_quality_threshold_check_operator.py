@@ -31,6 +31,7 @@ def _construct_task(min_threshold=None, max_threshold=None, sql='SELECT;',
 
 
 @mock.patch.object(DataQualityThresholdCheckOperator, 'get_sql_value')
+@pytest.mark.compatibility
 def test_inside_threshold_values(mock_get_sql_value):
     mock_get_sql_value.return_value = 12
     task = _construct_task(
@@ -48,6 +49,7 @@ def test_inside_threshold_values(mock_get_sql_value):
 
 
 @mock.patch.object(DataQualityThresholdCheckOperator, 'get_sql_value')
+@pytest.mark.compatibility
 def test_outside_threshold_values(mock_get_sql_value):
     mock_get_sql_value.return_value = 100
     task = _construct_task(
@@ -68,6 +70,7 @@ def test_outside_threshold_values(mock_get_sql_value):
 
 
 @mock.patch.object(DataQualityThresholdCheckOperator, 'get_sql_value')
+@pytest.mark.compatibility
 def test_one_threshold_value(mock_get_sql_value):
     mock_get_sql_value.return_value = 10
     task = _construct_task(
@@ -85,6 +88,7 @@ def test_one_threshold_value(mock_get_sql_value):
 
 
 @mock.patch.object(DataQualityThresholdCheckOperator, 'get_sql_value')
+@pytest.mark.compatibility
 def test_threshold_check_args(mock_get_sql_value):
     mock_get_sql_value.side_effect = lambda _, sql: int(sql)
 

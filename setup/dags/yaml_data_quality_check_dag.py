@@ -7,9 +7,9 @@ from airflow import DAG
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.postgres_operator import PostgresOperator
 
-from rb_quality_plugin.utilities.dq_check_tools\
+from rb_quality_plugin.core.utilities.dq_check_tools\
     import create_dq_checks_from_directory
-from rb_quality_plugin.utilities.dq_check_tools\
+from rb_quality_plugin.core.utilities.dq_check_tools\
     import create_dq_checks_from_list
 
 default_args = {
@@ -25,7 +25,7 @@ plugins_folder = conf.get("core", "plugins_folder")
 YAML_DIR = os.path.join(
     plugins_folder, "rb_quality_plugin", "tests", "configs")
 OTHER_YAML_DIR = os.path.join(
-    plugins_folder, "rb_quality_plugin", "example_dags",
+    plugins_folder, "rb_quality_plugin", "setup", "dags",
     "yaml_dq_check_dag", "yaml_configs"
 )
 

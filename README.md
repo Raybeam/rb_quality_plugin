@@ -11,16 +11,17 @@ Optionally:
 ## Quick Setup
 Clone a sample airflow workspace (if you dont have an existing airflow repository).  
 ```
-git clone https://github.com/Raybeam/rb_test_airflow/ deploy_test
-cd deploy_test
+git clone https://github.com/Raybeam/rb_test_airflow/ sample_workspace
+cd sample_workspace
 ```
-Clone plugin into local workspace  
+Clone deploy script into local workspace  
 ```
-git clone https://github.com/Raybeam/rb_quality_plugin plugins/rb_quality_plugin
+git clone https://github.com/Raybeam/rb_plugin_deploy plugins/rb_plugin_deploy
 ```
 Run plugin's deploy script.  
+
 ```
-./plugins/rb_quality_plugin/deploy.sh
+./plugins/rb_plugin_deploy/deploy.sh
 ```
   
 ## Features
@@ -95,14 +96,14 @@ The parameters used are:
 
 
 ### YAML Usage 
-Both operators have the capability to read in YAML configurations by passing the path as the parameter `config_path`. Examples of configuration files can be found in [`example_dags/yaml_dq_check_dag/yaml_configs/`](/example_dags/yaml_dq_check_dag/yaml_configs/). 
+Both operators have the capability to read in YAML configurations by passing the path as the parameter `config_path`. Examples of configuration files can be found in [`/setup/dags/yaml_dq_check_dag/yaml_configs/`](/setup/dags/yaml_dq_check_dag/yaml_configs/). 
 
-With the implementation of configuration file input, [`dq_check_tools.py`](example_dags/utilities/dq_check_tools.py) utilizes this function to dynamically add dq operators to a DAG. There are two methods in this tool: 
+With the implementation of configuration file input, [`dq_check_tools.py`](core/utilities/dq_check_tools.py) utilizes this function to dynamically add dq operators to a DAG. There are two methods in this tool: 
 1. `create_dq_checks_from_directory()` - Collects all dq checks in a directory, with the option to recurse through sub-directories.
 2. `create_dq_checks_from_list()` - Collects all dq checks config files passed through by a list of YAML paths.
 
 ### Examples
-Example DAG usages are also provided in this package located in the [`example_dags/`](example_dags/) directory. This directory includes examples for both types of Threshold Check Operators and the YAML data quality check tools.
+Example DAG usages are also provided in this package located in the [`setup/dags/`](setup/dags/) directory. This directory includes examples for both types of Threshold Check Operators and the YAML data quality check tools.
 
 ## Tests
 Tests can be found [here](tests/). Test directory gives an outline of each test file and the purpose of each. Additionally, it contains test configurations such as a sql script that creates test tables and configuration YAML files.
@@ -115,3 +116,130 @@ Diagrams below visualize flow of execution when `DataQualityThresholdCheckOperat
 
 ### DataQualityThresholdSQLCheckOperator Flowchart
 ![data_quality_threshold_sql_check_operator diagram](operator_diagrams/data_quality_threshold_sql_check_operator_flowchart.png)
+
+## Set up : Local Deploy
+
+### Set up the Python virtual environment
+`> python -m venv .`
+
+### Set AIRFLOW_HOME
+By putting the `AIRFLOW_HOME` env in the `bin/activate` file, you set the path each time you set up your venv.
+
+`> echo "export AIRFLOW_HOME=$PWD" >> bin/activate`
+
+### Activate your venv
+`> source bin/activate`
+
+### Install airflow
+`> pip install apache-airflow`
+
+### Initialize your Airflow DB
+`> airflow initdb`
+
+### Clone the plugin into your plugins
+`> git clone https://github.com/Raybeam/rb_quality_plugin plugins/rb_quality_plugin`
+
+### Copy over plugins requirements
+`> cat plugins/rb_quality_plugin/requirements.txt >> requirements.txt`  
+`> pip install -r requirements.txt`
+
+### Set up the plugin
+Move over the samples (if wanted)
+
+`> plugins/rb_quality_plugin/bin/setup init`
+
+`> plugins/rb_quality_plugin/bin/setup add_samples`
+
+`> plugins/rb_quality_plugin/bin/setup add_samples --dag_only`
+
+### Enable rbac
+In the root directory of your airflow workspace, open airflow.cfg and set `rbac=True`.
+
+### Set up a user (admin:admin)
+`> airflow create_user -r Admin -u admin -e admin@example.com -f admin -l user -p admin`
+
+### Turn on Webserver
+`>airflow webserver`
+
+### Turn on Scheduler
+In a new terminal, navigate to the same directory.  
+`>source bin/activate`  
+`>airflow scheduler`  
+
+### Interact with UI
+In a web brower, visit localhost:8080.  
+
+## Set up : Astronomer Deploy
+### Set up local environment
+Follow the local deploy [instructions](#set-up--local-deploy) for configuring your local environment.  
+
+### Turn off Webserver and Scheduler
+Either Control+C or closing the terminal's window/tab should work to turn either of them off. 
+
+### Download Astronomer
+Download astronomer package following their [tutorial](https://www.astronomer.io/docs/cli-getting-started/).
+
+### Initialize Astronomer
+In your working directory
+`> astro dev init`
+
+### Start Astronomer
+`> astro dev start`
+  
+### Interact with UI
+In a web brower, visit localhost:8080.
+
+## Set up : Google Cloud Composer Deploy
+
+### Clone the plugin into your plugins
+`> git clone https://github.com/Raybeam/rb_quality_plugin plugins/rb_quality_plugin`
+
+### Install gcloud 
+[Install](https://cloud.google.com/sdk/docs/quickstarts) the gcloud SDK and configure it to your Cloud Composer Environment.
+
+### Updating requirements.txt in Google Cloud Composer (CLI)
+`>gcloud auth login`  
+
+`>gcloud config set project <your Google Cloud project name>`  
+
+`>gcloud composer environments update ENVIRONMENT_NAME --location LOCATION --update-pypi-packages-from-file=plugins/rb_quality_plugin/requirements.txt`  
+
+`ENVIRONMENT_NAME` is the name of the environment.  
+`LOCATION` is the Compute Engine region where the environment is located.  
+It may take a few minutes for cloud composer to finish updating after running this command.
+
+### Import Required Airflow Configurations
+```
+>gcloud composer environments update ENVIRONMENT_NAME --location LOCATION --update-airflow-configs \  
+	webserver-rbac=False,\  
+	core-store_serialized_dags=False,\  
+	webserver-async_dagbag_loader=True,\  
+	webserver-collect_dags_interval=10,\  
+	webserver-dagbag_sync_interval=10,\  
+	webserver-worker_refresh_interval=3600
+```  
+
+`ENVIRONMENT_NAME` is the name of the environment.  
+`LOCATION` is the Compute Engine region where the environment is located.  
+
+
+### Uploading Plugin to Google Cloud Composer (CLI)
+Add any dags to dags folder:  
+```
+ >gcloud composer environments storage dags import\  
+    --environment ENVIRONMENT_NAME \
+    --location LOCATION \
+    --source SOURCE/setup/dags/
+```  
+
+Add the plugin to plugins folder:  
+```
+>gcloud composer environments storage plugins import\
+    --environment ENVIRONMENT_NAME \
+    --location LOCATION \
+    --source SOURCE
+```    
+
+`ENVIRONMENT_NAME` is the name of the environment.  
+`LOCATION` is the Compute Engine region where the environment is located.  
+`SOURCE` is the absolute path to the local directory (full-path/plugins/rb_quality_plugin/).  
