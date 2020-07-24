@@ -11,6 +11,7 @@ class BigQueryWriter(SQLWriter):
     An example use case would be to write an entry into a log table
     to note the details of a completed data process--when and by whom.
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -33,8 +34,9 @@ class BigQueryWriter(SQLWriter):
         """
         message = [tuple(i[1] for i in message.items())]
         hook = BigQueryHook(bigquery_conn_id=self.connection_id)
-        client = Client(project=hook._get_field("project"),
-                        credentials=hook._get_credentials())
+        client = Client(
+            project=hook._get_field("project"), credentials=hook._get_credentials()
+        )
         table = client.get_table(self.table_id)
         errors = client.insert_rows(table, message)
         if not errors:

@@ -4,23 +4,24 @@ import pytest
 
 import airflow
 from airflow.configuration import conf
-from rb_quality_plugin.operators.data_quality_threshold_check_operator\
-    import DataQualityThresholdCheckOperator
-from rb_quality_plugin.operators.data_quality_threshold_sql_check_operator\
-    import DataQualityThresholdSQLCheckOperator
-from rb_quality_plugin.core.utilities.dq_check_tools\
-    import create_dq_checks_from_directory
-from rb_quality_plugin.core.utilities.dq_check_tools\
-    import create_dq_checks_from_list
+from rb_quality_plugin.operators.data_quality_threshold_check_operator import (
+    DataQualityThresholdCheckOperator,
+)
+from rb_quality_plugin.operators.data_quality_threshold_sql_check_operator import (
+    DataQualityThresholdSQLCheckOperator,
+)
+from rb_quality_plugin.core.utilities.dq_check_tools import (
+    create_dq_checks_from_directory,
+)
+from rb_quality_plugin.core.utilities.dq_check_tools import create_dq_checks_from_list
 
 DEFAULT_DATE = datetime.now()
-DAG = airflow.DAG("TEST_DAG_ID",
-                  schedule_interval='@daily',
-                  default_args={'start_date': DEFAULT_DATE})
+DAG = airflow.DAG(
+    "TEST_DAG_ID", schedule_interval="@daily", default_args={"start_date": DEFAULT_DATE}
+)
 
 plugins_folder = conf.get("core", "plugins_folder")
-YAML_DIR = os.path.join(
-    plugins_folder, "rb_quality_plugin", "tests", "configs")
+YAML_DIR = os.path.join(plugins_folder, "rb_quality_plugin", "tests", "configs")
 
 
 @pytest.mark.compatibility
@@ -46,10 +47,11 @@ def test_create_dq_checks_from_directory_no_recursion():
 @pytest.mark.compatibility
 def test_create_dq_checks_from_list():
     yaml_list = [
-        (os.path.join(YAML_DIR, 'yaml_configs',
-                      'test_inside_threshold_sql.yaml'), {}),
-        (os.path.join(YAML_DIR, 'yaml_configs',
-                      'test_inside_threshold_values.yaml'), {})
+        (os.path.join(YAML_DIR, "yaml_configs", "test_inside_threshold_sql.yaml"), {}),
+        (
+            os.path.join(YAML_DIR, "yaml_configs", "test_inside_threshold_values.yaml"),
+            {},
+        ),
     ]
 
     task_list = create_dq_checks_from_list(DAG, yaml_list)
