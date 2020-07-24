@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from unittest import mock
+import mock
 import pytest
 
 from rb_quality_plugin.core.message_writers.message_writer import MessageWriter

@@ -1,5 +1,5 @@
 from datetime import datetime
-from unittest import mock
+import mock
 import pytest
 
 import airflow

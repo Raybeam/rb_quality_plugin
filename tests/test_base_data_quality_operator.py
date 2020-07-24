@@ -1,5 +1,5 @@
 import pytest
-from unittest import mock
+import mock
 from airflow.hooks.base_hook import BaseHook
 from rb_quality_plugin.operators.base_data_quality_operator import (
     BaseDataQualityOperator,
