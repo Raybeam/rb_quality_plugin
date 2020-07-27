@@ -29,16 +29,16 @@ def test_bigquery_writer(mock_client, mock_hook):
     """
     mock_hook._get_credentials.return_value = "test_creds"
     test_table_id = "test_db.test_table_id"
-    test_message = OrderedDict({"a": 1})
-    mock_client.insert_rows.return_value = []
+    test_message = [{"a": 1}]
+    mock_client.insert_rows_json.return_value = []
     mock_client().get_table.return_value = test_table_id
     writer = BigQueryWriter(
         connection_id="google_cloud_default", table_id=test_table_id
     )
     writer.send_message(test_message)
 
-    mock_client().insert_rows.assert_called_once_with(
-        test_table_id, [tuple(i[1] for i in test_message.items())]
+    mock_client().insert_rows_json.assert_called_once_with(
+        test_table_id, test_message
     )
 
 
@@ -49,7 +49,7 @@ def test_multiwriter(mock_send_message):
     :param mock_send_message:
     :return:
     """
-    test_message = OrderedDict({"a": 1})
+    test_message = [{"a": 1}]
     writer = MultiWriter(
         writers=[
             MessageWriter(connection_id="test_conn1"),
