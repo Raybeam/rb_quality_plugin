@@ -2,6 +2,7 @@ class MessageWriter:
     """
     This class allows a "message" to be sent to an external recipient.
     """
+
     def __init__(self, *args, **kwargs):
         pass
 

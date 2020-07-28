@@ -5,6 +5,7 @@ class MultiWriter(MessageWriter):
     """
     Sends a message through multiple passed-in MessageWriter objects.
     """
+
     def __init__(self, writers, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.writers = writers

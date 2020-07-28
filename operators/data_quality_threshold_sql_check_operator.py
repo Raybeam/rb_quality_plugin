@@ -4,8 +4,9 @@ from collections import OrderedDict
 from airflow import AirflowException
 from airflow.utils.decorators import apply_defaults
 
-from rb_quality_plugin.operators.base_data_quality_operator\
-    import BaseDataQualityOperator
+from rb_quality_plugin.operators.base_data_quality_operator import (
+    BaseDataQualityOperator,
+)
 
 
 class DataQualityThresholdSQLCheckOperator(BaseDataQualityOperator):
@@ -29,28 +30,30 @@ class DataQualityThresholdSQLCheckOperator(BaseDataQualityOperator):
     :type config_path: str
     """
 
-    template_fields = ['sql', 'min_threshold_sql', 'max_threshold_sql']
-    template_ext = ['.sql']
+    template_fields = ["sql", "min_threshold_sql", "max_threshold_sql"]
+    template_ext = [".sql"]
 
     @apply_defaults
-    def __init__(self,
-                 min_threshold_sql=None,
-                 max_threshold_sql=None,
-                 threshold_conn_id=None,
-                 config_path=None,
-                 *args,
-                 **kwargs):
+    def __init__(
+        self,
+        min_threshold_sql=None,
+        max_threshold_sql=None,
+        threshold_conn_id=None,
+        config_path=None,
+        *args,
+        **kwargs
+    ):
 
         if config_path:
             with open(config_path) as configs:
                 dq_configs = yaml.safe_load(configs)
 
             for key in dq_configs:
-                if key == 'min_threshold_sql' and not min_threshold_sql:
+                if key == "min_threshold_sql" and not min_threshold_sql:
                     min_threshold_sql = dq_configs[key]
-                elif key == 'max_threshold_sql' and not max_threshold_sql:
+                elif key == "max_threshold_sql" and not max_threshold_sql:
                     max_threshold_sql = dq_configs[key]
-                elif key == 'threshold_conn_id' and not threshold_conn_id:
+                elif key == "threshold_conn_id" and not threshold_conn_id:
                     threshold_conn_id = dq_configs[key]
                 elif key not in kwargs:
                     kwargs[key] = dq_configs[key]
@@ -60,8 +63,7 @@ class DataQualityThresholdSQLCheckOperator(BaseDataQualityOperator):
         self.threshold_conn_id = threshold_conn_id
 
         if not (self.max_threshold_sql or self.min_threshold_sql):
-            raise AirflowException(
-                "At least a min or max threshold must be defined")
+            raise AirflowException("At least a min or max threshold must be defined")
 
         super().__init__(*args, **kwargs)
 
@@ -69,19 +71,20 @@ class DataQualityThresholdSQLCheckOperator(BaseDataQualityOperator):
         if self.min_threshold_sql:
             min_threshold = self.get_sql_value(
                 self.threshold_conn_id,
-                self.min_threshold_sql.format(**self.dq_check_args))
+                self.min_threshold_sql.format(**self.dq_check_args),
+            )
         else:
             min_threshold = None
 
         if self.max_threshold_sql:
             max_threshold = self.get_sql_value(
                 self.threshold_conn_id,
-                self.max_threshold_sql.format(**self.dq_check_args))
+                self.max_threshold_sql.format(**self.dq_check_args),
+            )
         else:
             max_threshold = None
 
-        result = self.get_sql_value(
-            self.conn_id, self.sql.format(**self.dq_check_args))
+        result = self.get_sql_value(self.conn_id, self.sql.format(**self.dq_check_args))
 
         within_threshold = True
         if max_threshold is not None and result > max_threshold:
@@ -89,15 +92,17 @@ class DataQualityThresholdSQLCheckOperator(BaseDataQualityOperator):
         if min_threshold is not None and result < min_threshold:
             within_threshold = False
 
-        info_ordereddict = OrderedDict({
-            "result": result,
-            "description": self.check_description,
-            "task_id": self.task_id,
-            "execution_date": str(context.get("execution_date")),
-            "min_threshold": min_threshold,
-            "max_threshold": max_threshold,
-            "within_threshold": within_threshold
-        })
+        info_ordereddict = OrderedDict(
+            {
+                "result": result,
+                "description": self.check_description,
+                "task_id": self.task_id,
+                "execution_date": str(context.get("execution_date")),
+                "min_threshold": min_threshold,
+                "max_threshold": max_threshold,
+                "within_threshold": within_threshold,
+            }
+        )
 
         self.push(info_ordereddict)
         if not info_ordereddict["within_threshold"]:
